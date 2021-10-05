@@ -1,4 +1,5 @@
 {
+  "proxy": "https://mysterious-escarpment-54073.herokuapp.com",
   "name": "dashboard",
   "version": "0.1.0",
   "private": true,
