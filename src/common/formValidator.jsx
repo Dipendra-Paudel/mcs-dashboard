@@ -1,11 +1,13 @@
 const formValidator = (value, validation, placeholder) => {
   let error = "";
+  value = String(value);
 
   // Check if value is empty
   if (
     value.trim() === "" &&
     validation !== "password" &&
-    validation !== "confirmPassword"
+    validation !== "confirmPassword" &&
+    validation !== "discountPrice"
   ) {
     error = `This field is required`;
   } else {

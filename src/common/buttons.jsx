@@ -12,6 +12,19 @@ export const SimpleButton = ({ label, handleClick }) => {
   );
 };
 
+export const DeleteButton = ({ label, handleClick, deleting }) => {
+  return (
+    <button
+      className={`text-white flex items-center justify-center px-4 py-1 rounded font-semibold ${
+        deleting ? "cursor-wait bg-red-400" : "bg-red-500 hover:bg-red-600"
+      }`}
+      onClick={() => !deleting && handleClick()}
+    >
+      {deleting ? <Loader /> : label}
+    </button>
+  );
+};
+
 export const AuthButton = ({ submitting, label }) => {
   return (
     <button

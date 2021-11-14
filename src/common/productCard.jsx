@@ -2,7 +2,13 @@ import React from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
 
-const ProductCard = ({ productName, price, image, handleEdit }) => {
+const ProductCard = ({
+  productName,
+  price,
+  image,
+  handleEdit,
+  handleDelete,
+}) => {
   return (
     <div className="relative group rounded-lg overflow-hidden shadow-xl bg-white">
       <div>
@@ -23,7 +29,7 @@ const ProductCard = ({ productName, price, image, handleEdit }) => {
         <div onClick={handleEdit}>
           <EditIcon />
         </div>
-        <div>
+        <div onClick={handleDelete}>
           <DeleteOutlineOutlinedIcon />
         </div>
       </div>

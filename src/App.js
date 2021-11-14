@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 import Dashboard from "./components/dashboard/dashboard";
 import Product from "./components/product/product";
+import Service from "./components/service/service";
 import NavigationBar from "./components/static/navigation-bar";
 import Sidebar from "./components/static/sidebar";
 
@@ -71,6 +72,7 @@ function App() {
         >
           <Switch>
             <Route exact path="/product" component={Product} />
+            <Route exact path="/service" component={Service} />
             <Route exact path="/" component={Dashboard} />
           </Switch>
         </div>

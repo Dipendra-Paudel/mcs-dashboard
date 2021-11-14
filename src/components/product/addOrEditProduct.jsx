@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 import CloseIcon from "@material-ui/icons/Close";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
 import ImageField from "../../common/image-field";
+import { addProduct, updateProduct } from "../../api/product";
+import AlertMessage from "../../common/alertMessage";
 
 const inputFields = [
   {
@@ -29,29 +30,25 @@ const inputFields = [
   },
 ];
 
-const AddOrEditProduct = ({
-  type,
-  id,
-  handleClose,
-  productName,
-  price,
-  discountPrice,
-  description,
-}) => {
+const AddOrEditProduct = (props) => {
+  let { type, handleClose, product, setFetch } = props;
+  product = product || {};
+  const { productName, price, description, image, discountPrice } = product;
   const [submitting, setSubmitting] = useState(false);
+  const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     productName: productName || "",
     price: price || "",
-    discountPrice: discountPrice || "",
     description: description || "",
+    discountPrice: discountPrice || "",
     errors: {
       productName: "",
       price: "",
-      discountPrice: "",
       description: "",
+      discountPrice: "",
     },
   });
-  const [productImage, setProductImage] = useState("");
+  const [productImage, setProductImage] = useState(image || "");
   const [imageErr, setImageErr] = useState("");
 
   const handleDataChange = (event, property) => {
@@ -76,6 +73,8 @@ const AddOrEditProduct = ({
     event.preventDefault();
     if (!submitting) {
       let goAheadAndSubmit = true;
+
+      // Validate every field
       for (let i = 0; i < inputFields.length; i++) {
         const { validation, placeholder } = inputFields[i];
         let error = formValidator(data[validation], validation, placeholder);
@@ -94,39 +93,61 @@ const AddOrEditProduct = ({
         }));
       }
 
-      if (!productImage && !imageErr) {
+      if (!productImage) {
         setImageErr("Image is required");
         goAheadAndSubmit = false;
       }
 
       // if there are no errors proceed to submit the data to the server
       if (goAheadAndSubmit) {
-        // setSubmitting(true);
-
+        setSubmitting(true);
         if (type === "edit") {
-          if (productImage) {
-            const formData = new FormData();
-            inputFields.map((field) =>
-              formData.append(field.validation, data[field.validation])
-            );
+          const formData = new FormData();
+          inputFields.map((field) =>
+            formData.append(field.validation, data[field.validation])
+          );
 
-            productImage?.name && formData.append("image", productImage);
+          formData.append("id", product._id);
 
-            // now send the data to the server
+          productImage?.name && formData.append("image", productImage);
+
+          // now send the data to the server
+          const { message, error } = await updateProduct(formData);
+
+          if (error) {
+            setFinalMessage({
+              type: "error",
+              message: error,
+            });
+          } else if (message) {
+            setFinalMessage({
+              type: "success",
+              message,
+            });
           }
+          setSubmitting(false);
 
           // call the api for patch request
         } else if (type === "add") {
-          const url = "http://127.0.0.1:9000/api/products/";
           const sendingdata = { ...data };
           delete sendingdata.errors;
 
-          console.log(sendingdata);
-
-          axios
-            .post(url, sendingdata)
-            .then((response) => console.log(response.results))
-            .catch((err) => console.log(err));
+          const { message, error } = await addProduct(
+            sendingdata,
+            productImage
+          );
+          if (error) {
+            setFinalMessage({
+              type: "error",
+              message: error,
+            });
+          } else if (message) {
+            setFinalMessage({
+              type: "success",
+              message,
+            });
+          }
+          setSubmitting(false);
         }
       }
     }
@@ -134,11 +155,24 @@ const AddOrEditProduct = ({
 
   return (
     <div className="fixed top-0 left-0 z-50 w-full h-screen overflow-hidden">
+      {finalMessage && (
+        <AlertMessage
+          message={finalMessage.message}
+          handleClose={() => {
+            if (finalMessage.type === "success") {
+              handleClose();
+              setFetch(true);
+            }
+            setFinalMessage("");
+          }}
+        />
+      )}
+
       <div
         className="fixed top-0 left-0 w-full h-screen bg-gray-500 bg-opacity-30"
         onClick={handleClose}
       ></div>
-      <div className="h-full w-full overflow-y-auto flex justify-center">
+      <div className="h-full w-full overflow-y-auto flex justify-center popup-container">
         <div
           className="relative bg-white py-5 px-10 rounded-lg overflow-hidden max-w-3xl my-auto"
           style={{ minHeight: "500px" }}
