@@ -1,7 +1,7 @@
 import React from "react";
 import "../assets/css/loader.css";
 
-const Loader = () => {
+export const Loader = () => {
   return (
     <div className="loadingio-spinner-dual-ring-syc8p4cfa8">
       <div className="ldio-8r2v6ljjzow">
@@ -14,4 +14,21 @@ const Loader = () => {
   );
 };
 
-export default Loader;
+export const PageLoader = () => {
+  return (
+    <div className="lds-spinner">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  );
+};

@@ -17,9 +17,13 @@ const InputField = ({
       handleChange(event, validation);
     }
   };
-  if (validation === "password" || validation === "confirmPassword") {
+  if (
+    validation === "password" ||
+    validation === "confirmPassword" ||
+    validation === "currentPassword"
+  ) {
     return (
-      <div className="input-field-container">
+      <div>
         <label htmlFor={validation} className="text-gray-500 text-sm">
           {placeholder} <span className="text-red-500">*</span>
         </label>
@@ -53,7 +57,7 @@ const InputField = ({
     );
   } else if (type === "text") {
     return (
-      <div className="input-field-container">
+      <div>
         <label htmlFor={validation} className="text-gray-500 text-sm">
           {placeholder} <span className="text-red-500">*</span>
         </label>
@@ -65,6 +69,26 @@ const InputField = ({
           className={`input-field ${submitting ? "input-field-disabled" : ""}`}
           disabled={submitting}
         />
+        {error && <div className="text-sm text-red-400 mt-1">{error}</div>}
+      </div>
+    );
+  } else if (type === "select") {
+    return (
+      <div>
+        <label htmlFor={validation} className="text-gray-500 text-sm">
+          {placeholder} <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id={validation}
+          value={value}
+          onChange={(event) => changeInputData(event, validation)}
+          className={`input-field w-full resize-none ${
+            submitting ? "input-field-disabled" : ""
+          }`}
+          rows="5"
+          disabled={submitting}
+        ></textarea>
+
         {error && <div className="text-sm text-red-400 mt-1">{error}</div>}
       </div>
     );

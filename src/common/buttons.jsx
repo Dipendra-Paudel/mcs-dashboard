@@ -1,5 +1,5 @@
 import React from "react";
-import Loader from "./loader";
+import { Loader } from "./Loader";
 
 export const SimpleButton = ({ label, handleClick }) => {
   return (
@@ -34,5 +34,30 @@ export const AuthButton = ({ submitting, label }) => {
     >
       {submitting ? <Loader /> : label}
     </button>
+  );
+};
+
+export const PageNumber = ({
+  label,
+  value,
+  handleClick,
+  isActive,
+  isDisabled,
+}) => {
+  return (
+    <div
+      className={`py-2 px-4 ${
+        value === "..."
+          ? ""
+          : isDisabled === true
+          ? "cursor-default bg-gray-100"
+          : isActive
+          ? "bg-blue-300 cursor-default"
+          : "transition-all duration-300 border border-blue-300 hover:bg-blue-400 cursor-pointer"
+      }`}
+      onClick={handleClick}
+    >
+      {label}
+    </div>
   );
 };

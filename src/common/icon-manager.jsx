@@ -1,11 +1,13 @@
 // icons from the material ui (icons)
-import DashboardIcon from "@material-ui/icons/Dashboard";
-import AccountCircleOutlinedIcon from "@material-ui/icons/AccountCircleOutlined";
-import SettingsOutlinedIcon from "@material-ui/icons/SettingsOutlined";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import MailOutlineIcon from "@material-ui/icons/MailOutline";
-import SettingsApplicationsIcon from "@material-ui/icons/SettingsApplications";
-import PeopleOutlineIcon from "@material-ui/icons/PeopleOutline";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import PaymentOutlinedIcon from "@mui/icons-material/PaymentOutlined";
 
 // icons from the svg files
 import ProductIcon from "../icons/product-icon";
@@ -30,6 +32,10 @@ export default function IconManager({ icon, ...remaining }) {
     return <SettingsApplicationsIcon {...remaining} />;
   } else if (icon === "Users") {
     return <PeopleOutlineIcon {...remaining} />;
+  } else if (icon === "Password") {
+    return <LockOutlinedIcon {...remaining} />;
+  } else if (icon === "Payment") {
+    return <PaymentOutlinedIcon {...remaining} />;
   } else {
     return null;
   }

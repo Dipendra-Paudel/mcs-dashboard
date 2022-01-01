@@ -20,7 +20,7 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       link: "/service",
     },
     {
-      title: "Contact",
+      title: "Contacts",
       icon: "Contact",
       link: "/contact",
     },
@@ -28,6 +28,16 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       title: "Users",
       icon: "Users",
       link: "/users",
+    },
+    {
+      title: "Payments",
+      icon: "Payment",
+      link: "/payments",
+    },
+    {
+      title: "Change Password",
+      link: "/change-password",
+      icon: "Password",
     },
   ];
 
@@ -108,7 +118,7 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       {width > 1023 && (
         <div
           id="sidebar"
-          className={`overflow-hidden transition-all ease-out duration-300 fixed top-0 lg:top-16 h-screen overflow-y-auto z-20 lg:z-0 bg-white
+          className={`overflow-hidden pt-5 transition-all ease-out duration-300 fixed top-0 lg:top-16 h-screen overflow-y-auto z-20 lg:z-0 bg-white
       ${toggled ? "w-64" : "w-0"}
       `}
         >

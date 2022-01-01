@@ -7,11 +7,14 @@ export const addService = async (sendingdata, image) => {
   formData.append("image", image);
   let clientResult = {};
 
-  await fetch("/service", {
+  await fetch("/api/service", {
     method: "POST",
     body: formData,
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       const { status, message } = await res.json();
       status === "success" && (clientResult = { status, message });
       status !== "success" && (clientResult = { status, error: message });
@@ -23,30 +26,26 @@ export const addService = async (sendingdata, image) => {
   return clientResult;
 };
 
-export const getServices = async (pageNum) => {
-  let clientResult = [];
-  await fetch("/service/all-services", {
+export const getServices = async (page, pageLimit) => {
+  let result = {};
+  await fetch(`/api/service?page=${page}&limit=${pageLimit}`, {
     method: "GET",
   })
     .then(async (res) => {
-      const { data } = await res.json();
-      if (data) {
-        clientResult = data.services;
-      } else {
-        // handle errors
+      const { status, data } = await res.json();
+      if (status === "success") {
+        result = { ...data };
       }
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch(() => {});
 
-  return clientResult;
+  return result;
 };
 
 export const deleteService = async (id) => {
   const clientResult = {};
 
-  await fetch("/service", {
+  await fetch("/api/service", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -56,6 +55,9 @@ export const deleteService = async (id) => {
     }),
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       if (res.status === 204) {
         clientResult.message = "Successfully deleted the service";
         return;
@@ -73,11 +75,14 @@ export const deleteService = async (id) => {
 
 export const updateService = async (formData) => {
   let clientResult = {};
-  await fetch("/service", {
+  await fetch("/api/service", {
     method: "PATCH",
     body: formData,
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       const { status, message } = await res.json();
       if (status === "success") {
         clientResult = {

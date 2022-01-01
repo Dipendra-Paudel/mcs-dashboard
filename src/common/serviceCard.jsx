@@ -1,6 +1,6 @@
 import React from "react";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteOutlineOutlinedIcon from "@material-ui/icons/DeleteOutlineOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 const ServiceCard = ({
   serviceName,
@@ -25,12 +25,18 @@ const ServiceCard = ({
       </div>
 
       {/* Edit and Delete Buttons */}
-      <div className="absolute flex justify-end top-0 right-0">
-        <div onClick={handleEdit}>
-          <EditIcon />
+      <div className="absolute flex justify-end top-1 right-1 space-x-1">
+        <div
+          onClick={handleEdit}
+          className="bg-secondary w-8 h-8 flex items-center justify-center rounded-full"
+        >
+          <EditIcon style={{ color: "white" }} />
         </div>
-        <div onClick={handleDelete}>
-          <DeleteOutlineOutlinedIcon />
+        <div
+          onClick={handleDelete}
+          className="bg-primary w-8 h-8 flex items-center justify-center rounded-full"
+        >
+          <DeleteOutlineOutlinedIcon style={{ color: "white" }} />
         </div>
       </div>
     </div>

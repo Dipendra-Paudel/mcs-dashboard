@@ -40,3 +40,27 @@ input:focus {
 .input-field:focus {
   box-shadow: 0px 1px 8px rgb(174, 174, 221);
 }
+
+/* table of contacts */
+.contact-table {
+  margin: 0 auto;
+  overflow-x: auto;
+}
+.contact-table table {
+  margin: 0 auto;
+  min-width: 550px;
+  text-align: left;
+}
+
+.contact-table thead tr {
+  @apply border-b-2 border-gray-300 mb-2;
+  border-collapse: collapse;
+}
+.contact-table tbody tr {
+  @apply border-b border-gray-300;
+}
+
+.contact-table td,
+.contact-table th {
+  @apply px-1;
+}

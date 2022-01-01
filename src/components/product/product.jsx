@@ -5,8 +5,16 @@ import ProductCard from "../../common/productCard";
 import { getProducts, deleteProduct } from "../../api/product";
 import ConfirmationPopup from "../../common/confirmationPopup";
 import AlertMessage from "../../common/alertMessage";
+import Pagination from "../../common/Pagination";
+import { PageLoader } from "../../common/Loader";
 
 const Product = () => {
+  const [mounted, setMounted] = useState(true);
+  useEffect(() => {
+    return () => {
+      setMounted(false);
+    };
+  }, []);
   const [loading, setLoading] = useState(true);
   const [popup, setPopup] = useState("");
   const [confirmationPopup, setConfirmationPopup] = useState(false);
@@ -14,7 +22,9 @@ const Product = () => {
   const [activeProduct, setActiveProduct] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
-  const [fetch, setFetch] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [page, setPage] = useState(1);
+  const pageLimit = 6;
 
   const handleProductAddButtonClick = () => {
     setPopup("addProduct");
@@ -39,7 +49,6 @@ const Product = () => {
       setConfirmationPopup(false);
       setDeleting(false);
       setFinalMessage(message || error);
-      setFetch(true);
     }
 
     setConfirmationPopup(false);
@@ -48,15 +57,22 @@ const Product = () => {
 
   useEffect(() => {
     const asyncGetProducts = async () => {
-      const products = await getProducts();
-      setProducts(products);
-
+      const { products, totalProducts } = await getProducts(page, pageLimit);
       setLoading(false);
-      setFetch(false);
+
+      if (products && mounted) {
+        setProducts(products);
+        setTotalProducts(totalProducts);
+      } else {
+        if (page > 1) {
+          setPage((p) => p - 1);
+          setLoading(true);
+        }
+      }
     };
 
-    fetch && asyncGetProducts();
-  }, [fetch]);
+    loading && asyncGetProducts();
+  }, [loading, mounted, page]);
 
   useEffect(() => {
     if (popup) {
@@ -66,6 +82,14 @@ const Product = () => {
     }
   }, [popup]);
 
+  if (loading) {
+    return (
+      <div className="grid place-items-center h-96">
+        <PageLoader />
+      </div>
+    );
+  }
+
   return (
     <div>
       {popup !== "" && (
@@ -73,7 +97,7 @@ const Product = () => {
           type={popup === "addProduct" ? "add" : "edit"}
           handleClose={() => setPopup("")}
           product={activeProduct}
-          setFetch={(val) => setFetch(val)}
+          setLoading={setLoading}
         />
       )}
       {confirmationPopup && (
@@ -86,7 +110,10 @@ const Product = () => {
       {finalMessage && (
         <AlertMessage
           message={finalMessage}
-          handleClose={() => setFinalMessage("")}
+          handleClose={() => {
+            setFinalMessage("");
+            setLoading(true);
+          }}
         />
       )}
       <div className="flex justify-end">
@@ -97,20 +124,36 @@ const Product = () => {
       </div>
 
       {/* List of All the Products */}
-      {loading && <div className="mt-6">Getting Products ...</div>}
       {products.length === 0 && !loading && (
         <div className="mt-6">No Products Found. Please add some products</div>
       )}
       {!loading && products.length > 0 && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mt-6">
-          {products.map((product, index) => (
-            <ProductCard
-              key={index}
-              {...product}
-              handleEdit={() => handleEditButtonClick(product)}
-              handleDelete={() => handleDeleteButtonClick(product)}
-            />
-          ))}
+        <div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mt-6">
+            {products.map((product, index) => (
+              <ProductCard
+                key={index}
+                {...product}
+                handleEdit={() => handleEditButtonClick(product)}
+                handleDelete={() => handleDeleteButtonClick(product)}
+              />
+            ))}
+          </div>
+
+          {totalProducts / pageLimit > 1 && (
+            <div className="py-10">
+              <Pagination
+                activePage={page}
+                setActivePage={(page) => {
+                  setPage(page);
+                  setLoading(true);
+                }}
+                totalItems={totalProducts}
+                numberOfItemsToDisplayInAPage={pageLimit}
+                handleScroll={() => window.scrollTo(0, 0)}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 import Dashboard from "./components/dashboard/dashboard";
+import ChangePassword from "./components/pages/ChangePassword";
 import Product from "./components/product/product";
 import Service from "./components/service/service";
 import NavigationBar from "./components/static/navigation-bar";
 import Sidebar from "./components/static/sidebar";
+import Contact from "./components/pages/Contact";
+import Users from "./components/pages/Users";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -73,6 +76,9 @@ function App() {
           <Switch>
             <Route exact path="/product" component={Product} />
             <Route exact path="/service" component={Service} />
+            <Route exact path="/change-password" component={ChangePassword} />
+            <Route exact path="/contact" component={Contact} />
+            <Route exact path="/users" component={Users} />
             <Route exact path="/" component={Dashboard} />
           </Switch>
         </div>

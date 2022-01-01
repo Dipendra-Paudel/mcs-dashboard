@@ -7,11 +7,14 @@ export const addProduct = async (sendingdata, image) => {
   formData.append("image", image);
   let clientResult = {};
 
-  await fetch("/product", {
+  await fetch("/api/product", {
     method: "POST",
     body: formData,
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       const { status, message } = await res.json();
       status === "success" && (clientResult = { status, message });
       status !== "success" && (clientResult = { status, error: message });
@@ -23,33 +26,34 @@ export const addProduct = async (sendingdata, image) => {
   return clientResult;
 };
 
-export const getProducts = async (pageNum) => {
-  let clientResult = [];
-  await fetch("/product/all-products", {
-    method: "GET",
-  })
+export const getProducts = async (page = 1, limit = 4) => {
+  let result = {};
+
+  await fetch(`/api/product?page=${page}&limit=${limit}`)
     .then(async (res) => {
-      const { data } = await res.json();
-      if (data) {
-        clientResult = data.products;
-      } else {
-        // handle errors
+      const { status, data } = await res.json();
+      if (status === "success" && data?.products) {
+        result = {
+          products: data.products,
+          totalProducts: data.totalProducts,
+        };
       }
     })
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch(() => {});
 
-  return clientResult;
+  return result;
 };
 
 export const updateProduct = async (formData) => {
   let clientResult = {};
-  await fetch("/product", {
+  await fetch("/api/product", {
     method: "PATCH",
     body: formData,
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       const { status, message } = await res.json();
       if (status === "success") {
         clientResult = {
@@ -73,7 +77,7 @@ export const updateProduct = async (formData) => {
 export const deleteProduct = async (id) => {
   const clientResult = {};
 
-  await fetch("/product", {
+  await fetch("/api/product", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -83,6 +87,9 @@ export const deleteProduct = async (id) => {
     }),
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        window.location = "/";
+      }
       if (res.status === 204) {
         clientResult.message = "Successfully deleted the product";
         return;

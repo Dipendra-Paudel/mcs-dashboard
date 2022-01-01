@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
@@ -19,11 +19,6 @@ const inputFields = [
     placeholder: "Price",
   },
   {
-    type: "text",
-    validation: "discountPrice",
-    placeholder: "Discount Price",
-  },
-  {
     type: "textarea",
     validation: "description",
     placeholder: "Service Description",
@@ -31,21 +26,19 @@ const inputFields = [
 ];
 
 const AddOrEditService = (props) => {
-  let { type, handleClose, service, setFetch } = props;
+  let { type, handleClose, service, setLoading } = props;
   service = service || {};
-  const { serviceName, price, description, image, discountPrice } = service;
+  const { serviceName, price, description, image } = service;
   const [submitting, setSubmitting] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     serviceName: serviceName || "",
     price: price || "",
     description: description || "",
-    discountPrice: discountPrice || "",
     errors: {
       serviceName: "",
       price: "",
       description: "",
-      discountPrice: "",
     },
   });
   const [serviceImage, setServiceImage] = useState(image || "");
@@ -161,7 +154,7 @@ const AddOrEditService = (props) => {
           handleClose={() => {
             if (finalMessage.type === "success") {
               handleClose();
-              setFetch(true);
+              setLoading(true);
             }
             setFinalMessage("");
           }}
@@ -175,7 +168,7 @@ const AddOrEditService = (props) => {
       <div className="h-full w-full overflow-y-auto flex justify-center popup-container">
         <div
           className="relative bg-white py-5 px-10 rounded-lg overflow-hidden max-w-3xl my-auto"
-          style={{ minHeight: "500px" }}
+          style={{ minHeight: "500px", minWidth: "600px" }}
         >
           <div
             className="absolute right-1 bg-red-400 hover:bg-red-500 top-1 w-6 h-6 rounded-full flex items-center justify-center"

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
@@ -19,11 +19,6 @@ const inputFields = [
     placeholder: "Price",
   },
   {
-    type: "text",
-    validation: "discountPrice",
-    placeholder: "Discount Price",
-  },
-  {
     type: "textarea",
     validation: "description",
     placeholder: "Product Description",
@@ -31,21 +26,20 @@ const inputFields = [
 ];
 
 const AddOrEditProduct = (props) => {
-  let { type, handleClose, product, setFetch } = props;
+  let { type, handleClose, product, setLoading } = props;
   product = product || {};
-  const { productName, price, description, image, discountPrice } = product;
+  const { productName, price, description, image, featured } = product;
   const [submitting, setSubmitting] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     productName: productName || "",
     price: price || "",
     description: description || "",
-    discountPrice: discountPrice || "",
+    featured: featured || false,
     errors: {
       productName: "",
       price: "",
       description: "",
-      discountPrice: "",
     },
   });
   const [productImage, setProductImage] = useState(image || "");
@@ -101,12 +95,14 @@ const AddOrEditProduct = (props) => {
       // if there are no errors proceed to submit the data to the server
       if (goAheadAndSubmit) {
         setSubmitting(true);
+
         if (type === "edit") {
           const formData = new FormData();
           inputFields.map((field) =>
             formData.append(field.validation, data[field.validation])
           );
 
+          formData.append("featured", data.featured);
           formData.append("id", product._id);
 
           productImage?.name && formData.append("image", productImage);
@@ -161,7 +157,7 @@ const AddOrEditProduct = (props) => {
           handleClose={() => {
             if (finalMessage.type === "success") {
               handleClose();
-              setFetch(true);
+              setLoading(true);
             }
             setFinalMessage("");
           }}
@@ -175,7 +171,7 @@ const AddOrEditProduct = (props) => {
       <div className="h-full w-full overflow-y-auto flex justify-center popup-container">
         <div
           className="relative bg-white py-5 px-10 rounded-lg overflow-hidden max-w-3xl my-auto"
-          style={{ minHeight: "500px" }}
+          style={{ minHeight: "500px", minWidth: "600px" }}
         >
           <div
             className="absolute right-1 bg-red-400 hover:bg-red-500 top-1 w-6 h-6 rounded-full flex items-center justify-center"
@@ -212,14 +208,33 @@ const AddOrEditProduct = (props) => {
                     />
                   </div>
                 ))}
-                <div className="col-span-2">
-                  <ImageField
-                    fileName={imageErr || productImage?.name || productImage}
-                    handleChange={handleProductImageChange}
-                    error={imageErr}
-                    disabled={submitting}
+              </div>
+
+              {/* For the featured option */}
+              <div className="py-2">
+                <label
+                  htmlFor="featured"
+                  className="space-x-1 w-full inline-block cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    className="cursor-pointer"
+                    checked={data.featured}
+                    onChange={(event) =>
+                      setData({ ...data, featured: event.target.checked })
+                    }
                   />
-                </div>
+                  <span>Featured</span>
+                </label>
+              </div>
+              <div>
+                <ImageField
+                  fileName={imageErr || productImage?.name || productImage}
+                  handleChange={handleProductImageChange}
+                  error={imageErr}
+                  disabled={submitting}
+                />
               </div>
               <div className="pt-5">
                 <AuthButton submitting={submitting} label="Save Product" />

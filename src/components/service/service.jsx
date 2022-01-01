@@ -5,8 +5,16 @@ import ServiceCard from "../../common/serviceCard";
 import { getServices, deleteService } from "../../api/service";
 import ConfirmationPopup from "../../common/confirmationPopup";
 import AlertMessage from "../../common/alertMessage";
+import Pagination from "../../common/Pagination";
+import { PageLoader } from "../../common/Loader";
 
 const Service = () => {
+  const [mounted, setMounted] = useState(true);
+  useEffect(() => {
+    return () => {
+      setMounted(false);
+    };
+  }, []);
   const [loading, setLoading] = useState(true);
   const [popup, setPopup] = useState("");
   const [confirmationPopup, setConfirmationPopup] = useState(false);
@@ -14,7 +22,9 @@ const Service = () => {
   const [activeService, setActiveService] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
-  const [fetch, setFetch] = useState(true);
+  const [totalServices, setTotalServices] = useState(0);
+  const [page, setPage] = useState(1);
+  const pageLimit = 6;
 
   const handleAddButtonClick = () => {
     setPopup("addService");
@@ -39,7 +49,6 @@ const Service = () => {
       setConfirmationPopup(false);
       setDeleting(false);
       setFinalMessage(message || error);
-      setFetch(true);
     }
 
     setConfirmationPopup(false);
@@ -49,15 +58,24 @@ const Service = () => {
   useEffect(() => {
     const asyncGetServices = async () => {
       setLoading(true);
-      const services = await getServices();
-      setServices(services);
+      const { services, totalServices } = await getServices(page, pageLimit);
 
+      if (services && mounted) {
+        setServices(services);
+        setTotalServices(totalServices);
+      } else {
+        if (page > 1) {
+          setPage((p) => p - 1);
+          setLoading(true);
+        }
+      }
       setLoading(false);
-      setFetch(false);
+
+      setServices(services);
     };
 
-    fetch && asyncGetServices();
-  }, [fetch]);
+    loading && asyncGetServices();
+  }, [loading, page, mounted]);
 
   useEffect(() => {
     if (popup) {
@@ -67,6 +85,14 @@ const Service = () => {
     }
   }, [popup]);
 
+  if (loading) {
+    return (
+      <div className="grid place-items-center h-96">
+        <PageLoader />
+      </div>
+    );
+  }
+
   return (
     <div>
       {popup !== "" && (
@@ -74,7 +100,7 @@ const Service = () => {
           type={popup === "addService" ? "add" : "edit"}
           handleClose={() => setPopup("")}
           service={activeService}
-          setFetch={(val) => setFetch(val)}
+          setLoading={setLoading}
         />
       )}
       {confirmationPopup && (
@@ -87,7 +113,10 @@ const Service = () => {
       {finalMessage && (
         <AlertMessage
           message={finalMessage}
-          handleClose={() => setFinalMessage("")}
+          handleClose={() => {
+            setFinalMessage("");
+            setLoading(true);
+          }}
         />
       )}
       <div className="flex justify-end">
@@ -100,15 +129,31 @@ const Service = () => {
         <div className="mt-6">No Services Found. Please add some services</div>
       )}
       {!loading && services.length > 0 && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mt-6">
-          {services.map((service, index) => (
-            <ServiceCard
-              key={index}
-              {...service}
-              handleEdit={() => handleEditButtonClick(service)}
-              handleDelete={() => handleDeleteButtonClick(service)}
-            />
-          ))}
+        <div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mt-6">
+            {services.map((service, index) => (
+              <ServiceCard
+                key={index}
+                {...service}
+                handleEdit={() => handleEditButtonClick(service)}
+                handleDelete={() => handleDeleteButtonClick(service)}
+              />
+            ))}
+          </div>
+          {totalServices / pageLimit > 1 && (
+            <div className="py-10">
+              <Pagination
+                activePage={page}
+                setActivePage={(page) => {
+                  setPage(page);
+                  setLoading(true);
+                }}
+                totalItems={totalServices}
+                numberOfItemsToDisplayInAPage={pageLimit}
+                handleScroll={() => window.scrollTo(0, 0)}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
