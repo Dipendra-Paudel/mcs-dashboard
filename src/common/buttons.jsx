@@ -1,5 +1,5 @@
 import React from "react";
-import { Loader } from "./Loader";
+import { Loader } from "./loader";
 
 export const SimpleButton = ({ label, handleClick }) => {
   return (

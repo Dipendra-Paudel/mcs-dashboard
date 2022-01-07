@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import App from "./App";
 import { verifyToken } from "./api/auth";
 import misterComputerSolutionsLogo from "./assets/images/logo.svg";
-import { PageLoader } from "./common/Loader";
+import { PageLoader } from "./common/loader";
 import Login from "./components/login/Login";
 
 const RouteManagement = () => {

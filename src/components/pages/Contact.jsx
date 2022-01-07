@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { deleteContact, getAllContacts } from "../../api/contact";
-import { PageLoader } from "../../common/Loader";
+import { PageLoader } from "../../common/loader";
 import ConfirmationPopup from "../../common/confirmationPopup";
 import AlertMessage from "../../common/alertMessage";
 import Pagination from "../../common/Pagination";

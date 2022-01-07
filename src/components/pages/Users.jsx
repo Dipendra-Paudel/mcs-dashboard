@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { PageLoader } from "../../common/Loader";
+import { PageLoader } from "../../common/loader";
 import Pagination from "../../common/Pagination";
 import { getAllUsers } from "../../api/auth";
 import { SimpleButton } from "../../common/buttons";

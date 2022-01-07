@@ -6,7 +6,7 @@ import { getProducts, deleteProduct } from "../../api/product";
 import ConfirmationPopup from "../../common/confirmationPopup";
 import AlertMessage from "../../common/alertMessage";
 import Pagination from "../../common/Pagination";
-import { PageLoader } from "../../common/Loader";
+import { PageLoader } from "../../common/loader";
 
 const Product = () => {
   const [mounted, setMounted] = useState(true);

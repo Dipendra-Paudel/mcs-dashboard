@@ -6,7 +6,7 @@ import { getServices, deleteService } from "../../api/service";
 import ConfirmationPopup from "../../common/confirmationPopup";
 import AlertMessage from "../../common/alertMessage";
 import Pagination from "../../common/Pagination";
-import { PageLoader } from "../../common/Loader";
+import { PageLoader } from "../../common/loader";
 
 const Service = () => {
   const [mounted, setMounted] = useState(true);
