@@ -12,7 +12,11 @@ const ProductCard = ({
   return (
     <div className="relative group rounded-lg overflow-hidden shadow-xl bg-white">
       <div>
-        <img src={image} alt={productName} className="w-full h-56" />
+        <img
+          src={`${process.env.REACT_APP_API_BASE_URL}${image}`}
+          alt={productName}
+          className="w-full h-56"
+        />
       </div>
       <div className="p-3 space-y-2">
         <div className="text-xl font-semibold">{productName}</div>

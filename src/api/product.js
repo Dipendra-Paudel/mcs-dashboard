@@ -9,6 +9,9 @@ export const addProduct = async (sendingdata, image) => {
 
   await fetch("/api/product", {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
     body: formData,
   })
     .then(async (res) => {
@@ -48,6 +51,9 @@ export const updateProduct = async (formData) => {
   let clientResult = {};
   await fetch("/api/product", {
     method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
     body: formData,
   })
     .then(async (res) => {
@@ -81,6 +87,7 @@ export const deleteProduct = async (id) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({
       id,

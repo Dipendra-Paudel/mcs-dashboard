@@ -1,7 +1,12 @@
 export const getAllContacts = async (page, pageLimit) => {
   let result = {};
 
-  await fetch(`/api/contact/all-contacts?page=${page}&limit=${pageLimit}`)
+  await fetch(`/api/contact/all-contacts?page=${page}&limit=${pageLimit}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
     .then(async (res) => {
       if (res.status === 401) {
         window.location = "/";
@@ -25,6 +30,7 @@ export const deleteContact = async (id) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({
       id,

@@ -1,4 +1,4 @@
-const formValidator = (value, validation, placeholder) => {
+const formValidator = (value, validation, validateAll = true) => {
   let error = "";
   value = String(value);
 
@@ -10,7 +10,7 @@ const formValidator = (value, validation, placeholder) => {
     validation !== "discountPrice"
   ) {
     error = `This field is required`;
-  } else {
+  } else if (validateAll) {
     // validation for password
     if (validation === "password") {
       if (value.length === 0) {

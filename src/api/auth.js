@@ -2,6 +2,9 @@ export const verifyToken = async () => {
   const clientResult = {};
   await fetch("/api/user/verify-token/admin", {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   })
     .then(async (res) => {
       const { status, username } = await res.json();
@@ -30,7 +33,7 @@ export const login = async (data) => {
       }
 
       const result = await res.json();
-      const { status, message, errors } = result;
+      const { status, message, errors, token } = result;
 
       // Handle all errors
       if (status !== "success") {
@@ -38,6 +41,7 @@ export const login = async (data) => {
         errors && (clientResult.errors = errors);
       } else {
         clientResult.status = "success";
+        localStorage.setItem("token", token);
       }
     })
     .catch((err) => {
@@ -51,6 +55,9 @@ export const logout = async () => {
   const clientResult = {};
   await fetch("/api/user/logout", {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   })
     .then(async (res) => {
       if (res.status === 401) {
@@ -77,6 +84,7 @@ export const changePassword = async (data) => {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify(data),
   })
@@ -95,7 +103,12 @@ export const changePassword = async (data) => {
 export const getAllUsers = async (page, pageLimit) => {
   let result = {};
 
-  await fetch(`/api/user/all?page=${page}&limit=${pageLimit}`)
+  await fetch(`/api/user/all?page=${page}&limit=${pageLimit}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
     .then(async (res) => {
       if (res.status === 401) {
         window.location = "/";

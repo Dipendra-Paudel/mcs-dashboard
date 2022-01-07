@@ -9,6 +9,9 @@ export const addService = async (sendingdata, image) => {
 
   await fetch("/api/service", {
     method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
     body: formData,
   })
     .then(async (res) => {
@@ -28,9 +31,7 @@ export const addService = async (sendingdata, image) => {
 
 export const getServices = async (page, pageLimit) => {
   let result = {};
-  await fetch(`/api/service?page=${page}&limit=${pageLimit}`, {
-    method: "GET",
-  })
+  await fetch(`/api/service?page=${page}&limit=${pageLimit}`)
     .then(async (res) => {
       const { status, data } = await res.json();
       if (status === "success") {
@@ -49,6 +50,7 @@ export const deleteService = async (id) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({
       id,
@@ -77,6 +79,9 @@ export const updateService = async (formData) => {
   let clientResult = {};
   await fetch("/api/service", {
     method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
     body: formData,
   })
     .then(async (res) => {

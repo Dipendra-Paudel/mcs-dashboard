@@ -14,11 +14,6 @@ const inputFields = [
     placeholder: "Service Name",
   },
   {
-    type: "text",
-    validation: "price",
-    placeholder: "Price",
-  },
-  {
     type: "textarea",
     validation: "description",
     placeholder: "Service Description",
@@ -28,16 +23,14 @@ const inputFields = [
 const AddOrEditService = (props) => {
   let { type, handleClose, service, setLoading } = props;
   service = service || {};
-  const { serviceName, price, description, image } = service;
+  const { serviceName, description, image } = service;
   const [submitting, setSubmitting] = useState(false);
   const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     serviceName: serviceName || "",
-    price: price || "",
     description: description || "",
     errors: {
       serviceName: "",
-      price: "",
       description: "",
     },
   });
@@ -187,14 +180,9 @@ const AddOrEditService = (props) => {
               autoComplete="off"
               spellCheck="false"
             >
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4">
                 {inputFields.map((inputField, index) => (
-                  <div
-                    key={index}
-                    className={
-                      inputFields.length - 1 === index ? "col-span-2" : ""
-                    }
-                  >
+                  <div key={index}>
                     <InputField
                       {...inputField}
                       value={data[inputField.validation]}
@@ -205,7 +193,7 @@ const AddOrEditService = (props) => {
                     />
                   </div>
                 ))}
-                <div className="col-span-2">
+                <div>
                   <ImageField
                     fileName={imageErr || serviceImage?.name || serviceImage}
                     handleChange={handleServiceImageChange}

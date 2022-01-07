@@ -89,6 +89,7 @@ const Login = ({ setLoggedIn }) => {
 
         if (mounted) {
           if (error) {
+            setSubmitting(false);
             setData((d) => ({
               ...d,
               errors: {
@@ -100,8 +101,6 @@ const Login = ({ setLoggedIn }) => {
             window.location = "/";
           }
         }
-        // Reset the spinner
-        setSubmitting(false);
       }
     }
   };
