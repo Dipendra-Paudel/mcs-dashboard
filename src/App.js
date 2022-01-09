@@ -81,7 +81,7 @@ function App() {
             <Route exact path="/change-password" component={ChangePassword} />
             <Route exact path="/contact" component={Contact} />
             <Route exact path="/users" component={Users} />
-            <Route exact path="/" component={Dashboard} />
+            <Route path="/" component={Dashboard} />
           </Switch>
         </div>
       </div>
