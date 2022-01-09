@@ -29,10 +29,10 @@ export const addProduct = async (sendingdata, image) => {
   return clientResult;
 };
 
-export const getProducts = async (page = 1, limit = 4) => {
+export const getProducts = async (type = "", page = 1, limit = 4) => {
   let result = {};
 
-  await fetch(`/api/product?page=${page}&limit=${limit}`)
+  await fetch(`/api/product?type=${type}&page=${page}&limit=${limit}`)
     .then(async (res) => {
       const { status, data } = await res.json();
       if (status === "success" && data?.products) {
@@ -80,7 +80,7 @@ export const updateProduct = async (formData) => {
   return clientResult;
 };
 
-export const deleteProduct = async (id) => {
+export const deleteProducts = async (products) => {
   const clientResult = {};
 
   await fetch("/api/product", {
@@ -90,7 +90,7 @@ export const deleteProduct = async (id) => {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({
-      id,
+      products,
     }),
   })
     .then(async (res) => {

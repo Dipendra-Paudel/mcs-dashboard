@@ -8,6 +8,7 @@ import NavigationBar from "./components/static/navigation-bar";
 import Sidebar from "./components/static/sidebar";
 import Contact from "./components/pages/Contact";
 import Users from "./components/pages/Users";
+import IndividualProduct from "./components/product/IndividualProduct";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -74,6 +75,7 @@ function App() {
           }`}
         >
           <Switch>
+            <Route exact path="/product/:slug" component={IndividualProduct} />
             <Route exact path="/product" component={Product} />
             <Route exact path="/service" component={Service} />
             <Route exact path="/change-password" component={ChangePassword} />
