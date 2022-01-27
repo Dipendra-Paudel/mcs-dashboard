@@ -1,3 +1,6 @@
+import axios from "axios";
+const frontendToken = process.env.REACT_APP_FRONTEND_TOKEN;
+
 export const addService = async (sendingdata, image) => {
   const dataArr = Object.keys(sendingdata);
   const formData = new FormData();
@@ -5,35 +8,31 @@ export const addService = async (sendingdata, image) => {
     formData.append(dataArr[i], sendingdata[dataArr[i]]);
   }
   formData.append("image", image);
+  formData.append("frontendToken", frontendToken);
+
   let clientResult = {};
 
-  await fetch("/api/service", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: formData,
-  })
-    .then(async (res) => {
-      if (res.status === 401) {
-        window.location = "/";
-      }
-      const { status, message } = await res.json();
+  await axios
+    .post("/api/service", formData)
+    .then((res) => {
+      const { status, message } = res.data;
       status === "success" && (clientResult = { status, message });
       status !== "success" && (clientResult = { status, error: message });
     })
-    .catch((err) => {
-      clientResult.error = "Something went wrong. Please try again";
-    });
+    .catch(() => {});
 
   return clientResult;
 };
 
 export const getServices = async (page, pageLimit) => {
   let result = {};
-  await fetch(`/api/service?page=${page}&limit=${pageLimit}`)
-    .then(async (res) => {
-      const { status, data } = await res.json();
+
+  await axios
+    .post(`/api/service/all?page=${page}&limit=${pageLimit}`, {
+      frontendToken,
+    })
+    .then((res) => {
+      const { status, data } = res.data;
       if (status === "success") {
         result = { ...data };
       }
@@ -43,52 +42,33 @@ export const getServices = async (page, pageLimit) => {
   return result;
 };
 
-export const deleteService = async (id) => {
-  const clientResult = {};
+export const deleteServices = async (services) => {
+  const clientResult = {
+    status: "fail",
+    message: "Could not delete the service",
+  };
 
-  await fetch("/api/service", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({
-      id,
-    }),
-  })
-    .then(async (res) => {
-      if (res.status === 401) {
-        window.location = "/";
-      }
+  await axios
+    .delete("/api/service", { data: { services, frontendToken } })
+    .then((res) => {
       if (res.status === 204) {
+        clientResult.status = "success";
         clientResult.message = "Successfully deleted the service";
-        return;
       }
-
-      const { message } = await res.json();
-      clientResult.error = message;
     })
-    .catch((err) => {
-      clientResult.error = "Something went wrong. Please try again";
-    });
+    .catch(() => {});
 
   return clientResult;
 };
 
 export const updateService = async (formData) => {
   let clientResult = {};
-  await fetch("/api/service", {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: formData,
-  })
-    .then(async (res) => {
-      if (res.status === 401) {
-        window.location = "/";
-      }
-      const { status, message } = await res.json();
+  formData.append("frontendToken", frontendToken);
+
+  await axios
+    .patch("/api/service", formData)
+    .then((res) => {
+      const { status, message } = res.data;
       if (status === "success") {
         clientResult = {
           message,
@@ -101,9 +81,7 @@ export const updateService = async (formData) => {
         };
       }
     })
-    .catch((err) => {
-      clientResult.error = "Something went wrong. Please try again";
-    });
+    .catch(() => {});
 
   return clientResult;
 };

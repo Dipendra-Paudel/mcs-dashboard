@@ -1,17 +1,15 @@
-export const getAllContacts = async (page, pageLimit) => {
+import axios from "axios";
+const frontendToken = process.env.REACT_APP_FRONTEND_TOKEN;
+
+export const getAllContacts = async () => {
   let result = {};
 
-  await fetch(`/api/contact/all-contacts?page=${page}&limit=${pageLimit}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  })
-    .then(async (res) => {
-      if (res.status === 401) {
-        window.location = "/";
-      }
-      const { status, data } = await res.json();
+  await axios
+    .post(`/api/contact/all-contacts`, {
+      frontendToken,
+    })
+    .then((res) => {
+      const { status, data } = res.data;
       if (status === "success") {
         result = {
           ...data,
@@ -23,34 +21,17 @@ export const getAllContacts = async (page, pageLimit) => {
   return result;
 };
 
-export const deleteContact = async (id) => {
+export const deleteContacts = async (contacts) => {
   const clientResult = {};
 
-  await fetch("/api/contact", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({
-      id,
-    }),
-  })
-    .then(async (res) => {
-      if (res.status === 401) {
-        window.location = "/";
-      }
-      if (res.status === 204) {
-        clientResult.message = "Successfully deleted the contact";
-        return;
-      }
-
-      const { message } = await res.json();
-      clientResult.error = message;
+  await axios
+    .delete("/api/contact", { data: { contacts, frontendToken } })
+    .then((res) => {
+      const { status, message } = res.data;
+      clientResult.message = message;
+      clientResult.status = status;
     })
-    .catch((err) => {
-      clientResult.error = "Something went wrong. Please try again";
-    });
+    .catch(() => {});
 
   return clientResult;
 };

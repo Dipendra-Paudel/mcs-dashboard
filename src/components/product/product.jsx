@@ -1,26 +1,39 @@
 import React, { useState, useEffect } from "react";
+import Snackbar from "@mui/material/Snackbar";
+import Slide from "@mui/material/Slide";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import AddOrEditProduct from "./AddOrEditProduct";
 import { SimpleButton } from "../../common/buttons";
-import AddOrEditProduct from "./addOrEditProduct";
 import { getProducts } from "../../api/product";
 import { PageLoader } from "../../common/loader";
 import ProductDataTable from "../../ui/table/ProductDataTable";
 
-const Product = () => {
+function TransitionUp(props) {
+  return <Slide {...props} direction="up" />;
+}
+
+const Product = (props) => {
+  const [message, setMessage] = useState(() => props?.location?.state?.message);
   const [mounted, setMounted] = useState(true);
+
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [activeProduct, setActiveProduct] = useState("");
+  const [type, setType] = useState("");
+
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setMessage("");
+  };
+
   useEffect(() => {
     return () => {
       setMounted(false);
     };
   }, []);
-  const [loading, setLoading] = useState(true);
-  const [popup, setPopup] = useState("");
-  const [products, setProducts] = useState([]);
-  const [activeProduct, setActiveProduct] = useState("");
-
-  const handleProductAddButtonClick = () => {
-    setPopup("addProduct");
-    setActiveProduct("");
-  };
 
   useEffect(() => {
     const asyncGetProducts = async () => {
@@ -35,52 +48,74 @@ const Product = () => {
     loading && asyncGetProducts();
   }, [loading, mounted]);
 
-  useEffect(() => {
-    if (popup) {
-      document.getElementsByTagName("html")[0].style.overflow = "hidden";
-    } else {
-      document.getElementsByTagName("html")[0].style.overflow = "auto";
-    }
-  }, [popup]);
-
-  if (loading) {
-    return (
-      <div className="grid place-items-center h-96">
-        <PageLoader />
-      </div>
-    );
-  }
-
   return (
-    <div>
-      {popup !== "" && (
-        <AddOrEditProduct
-          type={popup === "addProduct" ? "add" : "edit"}
-          handleClose={() => setPopup("")}
-          product={activeProduct}
-          setLoading={setLoading}
-        />
+    <React.Fragment>
+      {loading && (
+        <div className="grid place-items-center h-96">
+          <PageLoader />
+        </div>
       )}
-      <div className="flex justify-end pb-4">
-        <SimpleButton
-          label="Add Product"
-          handleClick={handleProductAddButtonClick}
-        />
-      </div>
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        open={message ? true : false}
+        message={message}
+        TransitionComponent={TransitionUp}
+        autoHideDuration={5000}
+        onClose={() => setMessage("")}
+        action={
+          <IconButton
+            aria-label="close"
+            color="inherit"
+            sx={{ p: 0.5 }}
+            onClick={handleClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        }
+      />
+      {!loading && (
+        <>
+          {type !== "" && (
+            <AddOrEditProduct
+              type={type}
+              product={activeProduct}
+              handleClose={() => {
+                window.scrollTo(0, 0);
+                setLoading(true);
+                setType("");
+              }}
+              setMessage={setMessage}
+            />
+          )}
+          {type === "" && (
+            <div>
+              <div className="flex justify-end pb-4">
+                <SimpleButton
+                  label="Add Product"
+                  handleClick={() => setType("add")}
+                />
+              </div>
 
-      {/* List of All the Products */}
-      {products.length === 0 && !loading && (
-        <div className="mt-6">No Products Found. Please add some products</div>
+              {/* List of All the Products */}
+              {products.length === 0 && !loading && (
+                <div className="mt-6">
+                  No Products Found. Please add some products
+                </div>
+              )}
+              {!loading && products.length > 0 && (
+                <ProductDataTable
+                  setLoading={setLoading}
+                  products={products}
+                  setActiveProduct={setActiveProduct}
+                  setMessage={setMessage}
+                  setType={() => setType("edit")}
+                />
+              )}
+            </div>
+          )}
+        </>
       )}
-      {!loading && products.length > 0 && (
-        <ProductDataTable
-          setLoading={setLoading}
-          products={products}
-          setPopup={() => setPopup("editProduct")}
-          setActiveProduct={setActiveProduct}
-        />
-      )}
-    </div>
+    </React.Fragment>
   );
 };
 

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import React, { useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
 import ImageField from "../../common/image-field";
 import { addService, updateService } from "../../api/service";
+import AlertMessage from "../../common/alertMessage";
 
 const inputFields = [
   {
@@ -20,11 +21,11 @@ const inputFields = [
 ];
 
 const AddOrEditService = (props) => {
-  let { type, handleClose, service, setMessage } = props;
-  service = type === "edit" ? service || {} : {};
+  let { type, handleClose, service, setLoading } = props;
+  service = service || {};
   const { serviceName, description, image } = service;
   const [submitting, setSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(true);
+  const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     serviceName: serviceName || "",
     description: description || "",
@@ -37,17 +38,10 @@ const AddOrEditService = (props) => {
   const [imageErr, setImageErr] = useState("");
 
   const handleDataChange = (event, property) => {
-    if (typeof event === "string") {
-      setData({
-        ...data,
-        description: event,
-      });
-    } else {
-      setData({
-        ...data,
-        [property]: event.target.value,
-      });
-    }
+    setData({
+      ...data,
+      [property]: event.target.value,
+    });
   };
 
   const handleServiceImageChange = (file) => {
@@ -106,17 +100,18 @@ const AddOrEditService = (props) => {
           // now send the data to the server
           const { message, error } = await updateService(formData);
 
-          if (mounted) {
-            if (error) {
-              setMessage(
-                error || "Something went wrong while updating the service"
-              );
-            } else if (message) {
-              setMessage("Successfully updated the service");
-              handleClose();
-            }
-            setSubmitting(false);
+          if (error) {
+            setFinalMessage({
+              type: "error",
+              message: error,
+            });
+          } else if (message) {
+            setFinalMessage({
+              type: "success",
+              message,
+            });
           }
+          setSubmitting(false);
 
           // call the api for add request
         } else if (type === "add") {
@@ -127,51 +122,54 @@ const AddOrEditService = (props) => {
             sendingdata,
             serviceImage
           );
-
-          if (mounted) {
-            if (error) {
-              setMessage(
-                error || "Something went wrong while adding the service"
-              );
-            } else if (message) {
-              setMessage("Successfully added the service");
-              handleClose();
-            }
-            setSubmitting(false);
+          if (error) {
+            setFinalMessage({
+              type: "error",
+              message: error,
+            });
+          } else if (message) {
+            setFinalMessage({
+              type: "success",
+              message,
+            });
           }
+          setSubmitting(false);
         }
       }
     }
   };
 
-  useEffect(() => {
-    return () => {
-      setMounted(false);
-    };
-  }, []);
-
   return (
-    <div>
-      <div className="h-full w-full overflow-y-auto">
-        <div className="inline-block mb-4">
+    <div className="fixed top-0 left-0 z-50 w-full h-screen overflow-hidden">
+      {finalMessage && (
+        <AlertMessage
+          message={finalMessage.message}
+          handleClose={() => {
+            if (finalMessage.type === "success") {
+              handleClose();
+              setLoading(true);
+            }
+            setFinalMessage("");
+          }}
+        />
+      )}
+
+      <div
+        className="fixed top-0 left-0 w-full h-screen bg-gray-500 bg-opacity-30"
+        onClick={handleClose}
+      ></div>
+      <div className="h-full w-full overflow-y-auto flex justify-center popup-container">
+        <div
+          className="relative bg-white py-5 px-10 rounded-lg overflow-hidden max-w-3xl my-auto"
+          style={{ minHeight: "500px", minWidth: "600px" }}
+        >
           <div
-            className="px-4 py-1 flex space-x-4 font-semibold text-white cursor-pointer bg-blue-600 transition-all duration-500 hover:bg-blue-400 rounded"
+            className="absolute right-1 bg-red-400 hover:bg-red-500 top-1 w-6 h-6 rounded-full flex items-center justify-center"
             onClick={handleClose}
           >
-            <div>Go Back</div>
-            <div>
-              <DoubleArrowIcon
-                style={{
-                  color: "white",
-                  fontSize: "20px",
-                  transform: "rotate(180deg)",
-                }}
-              />
-            </div>
+            <CloseIcon className="close-icon" style={{ fontSize: "20px" }} />
           </div>
-        </div>
 
-        <div className="relative bg-white py-5 px-10 rounded-lg overflow-hidden my-auto">
           <div>
             <div className="text-2xl font-semibold text-secondary2 text-center py-2">
               {type === "add" ? "Add Service" : "Edit Service"}
@@ -202,19 +200,6 @@ const AddOrEditService = (props) => {
                     error={imageErr}
                     disabled={submitting}
                   />
-                  {serviceImage && (
-                    <div className="mt-4">
-                      <img
-                        src={
-                          typeof serviceImage === "string"
-                            ? `${process.env.REACT_APP_API_BASE_URL}${serviceImage}`
-                            : URL.createObjectURL(serviceImage)
-                        }
-                        alt={""}
-                        className="w-72"
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
               <div className="pt-5">

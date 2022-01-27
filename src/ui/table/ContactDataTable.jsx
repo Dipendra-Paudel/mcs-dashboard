@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -19,27 +20,30 @@ import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
 import { visuallyHidden } from "@mui/utils";
-import EditIcon from "@mui/icons-material/Edit";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
-import { deleteProducts } from "../../api/product";
+import AlertDialog from "../dialog/AlertDialog";
+import { deleteContacts } from "../../api/contact";
 
 function createData(
   id,
-  slug,
-  productName,
-  price,
-  rating,
-  numberOfRatings,
-  numberOfSell
+  firstName,
+  lastName,
+  email,
+  contactNumber,
+  subject,
+  message,
+  date
 ) {
   return {
     id,
-    slug,
-    productName,
-    price,
-    rating,
-    numberOfRatings,
-    numberOfSell,
+    firstName,
+    lastName,
+    email,
+    contactNumber,
+    subject,
+    message,
+    date,
   };
 }
 
@@ -75,33 +79,32 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "productName",
-    numeric: false,
-    label: "Product Name",
+    id: "firstName",
+    label: "First Name",
   },
   {
-    id: "price",
-    numeric: true,
-    label: "Price",
+    id: "lastName",
+    label: "Last Name",
   },
   {
-    id: "rating",
-    numeric: true,
-    label: "Rating",
+    id: "email",
+    label: "Email",
   },
   {
-    id: "numberOfRatings",
-    numeric: true,
-    label: "Number of Ratings",
+    id: "contactNumber",
+    label: "Contact",
   },
   {
-    id: "numberOfSell",
-    numeric: true,
-    label: "Number of Sell",
+    id: "subject",
+    label: "Subject",
   },
   {
-    id: "action",
-    label: "Action",
+    id: "message",
+    label: "Message",
+  },
+  {
+    id: "preview",
+    label: "Preview",
   },
 ];
 
@@ -131,11 +134,12 @@ function EnhancedTableHead(props) {
         </TableCell>
         {headCells.map((headCell, index) => (
           <React.Fragment key={index}>
-            {headCell.id === "action" ? (
+            {headCell.id === "preview" ? (
               <TableCell align="right">{headCell.label}</TableCell>
             ) : (
               <TableCell
-                align={headCell.id !== "productName" ? "right" : "left"}
+                align="left"
+                className="whitespace-nowrap"
                 sortDirection={orderBy === headCell.id ? order : false}
               >
                 <TableSortLabel
@@ -173,7 +177,7 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
   const {
     numSelected,
-    handleDeleteSelectedProducts,
+    handleDeleteSelectedContacts,
     searchValue,
     handleSearchValueChange,
   } = props;
@@ -208,12 +212,12 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Products
+          Contacts
         </Typography>
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete" onClick={handleDeleteSelectedProducts}>
+        <Tooltip title="Delete" onClick={handleDeleteSelectedContacts}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
@@ -235,34 +239,29 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function ProductDataTable({
-  products,
-  setLoading,
-  setActiveProduct,
-  setMessage,
-  setType,
-}) {
+export default function ContactDataTable({ contacts, setLoading }) {
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("productName");
+  const [orderBy, setOrderBy] = useState("firstName");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmationPopup, setDeleteConfirmationPopup] = useState(false);
+  const [alertPopup, setAlertPopup] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   const rows = [];
-  products.map((p) => {
-    if (p.productName.toLowerCase().includes(searchValue.toLowerCase())) {
+  contacts.map((p) => {
+    if (p.firstName.toLowerCase().includes(searchValue.toLowerCase())) {
       rows.push(
         createData(
           p._id,
-          p.slug,
-          p.productName,
-          p.price,
-          p.rating,
-          p.numberOfRatings,
-          p.numberOfSell
+          p.firstName,
+          p.lastName,
+          p.email,
+          p.contactNumber,
+          p.subject,
+          p.message
         )
       );
     }
@@ -307,15 +306,15 @@ export default function ProductDataTable({
   const handleConfirmationDelete = async (action) => {
     if (action === "ok") {
       setDeleting(true);
-      // call the api to delete selected products
-      const { status, message } = await deleteProducts(selected);
+      // call the api to delete selected contacts
+      const { status, message } = await deleteContacts(selected);
 
       setDeleting(false);
       setDeleteConfirmationPopup(false);
-      setMessage(() =>
+      setAlertPopup(() =>
         status === "success"
-          ? "Successfully deleted the selected products"
-          : message || "Could not delete the selected products"
+          ? "Successfully deleted the selected contacts."
+          : message || "Could not delete the selected contacts"
       );
       setLoading(true);
     } else {
@@ -327,13 +326,6 @@ export default function ProductDataTable({
     setPage(newPage);
   };
 
-  const handleEditProduct = (id) => {
-    const activeProduct = products.find((p) => p._id === id);
-    setActiveProduct(activeProduct);
-
-    setType();
-  };
-
   const handleSearchValueChange = (event) => {
     setSearchValue(event.target.value);
   };
@@ -343,7 +335,7 @@ export default function ProductDataTable({
     setPage(0);
   };
 
-  const isSelected = (productName) => selected.indexOf(productName) !== -1;
+  const isSelected = (firstName) => selected.indexOf(firstName) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -353,18 +345,24 @@ export default function ProductDataTable({
     <React.Fragment>
       {deleteConfirmationPopup && (
         <ConfirmationDialog
-          message="Are you sure that you want to delete selected products?"
+          message="Are you sure that you want to delete selected contacts?"
           submitting={deleting}
           handleClose={(action) =>
             !deleting && handleConfirmationDelete(action)
           }
         />
       )}
+      {alertPopup && (
+        <AlertDialog
+          message={alertPopup}
+          handleClose={() => setAlertPopup("")}
+        />
+      )}
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
-            handleDeleteSelectedProducts={() =>
+            handleDeleteSelectedContacts={() =>
               setDeleteConfirmationPopup(true)
             }
             searchValue={searchValue}
@@ -417,19 +415,23 @@ export default function ProductDataTable({
                           scope="row"
                           padding="none"
                         >
-                          {row.productName}
+                          {row.firstName}
                         </TableCell>
-                        <TableCell align="right">{row.price}</TableCell>
-                        <TableCell align="right">{row.rating}</TableCell>
-                        <TableCell align="right">
-                          {row.numberOfRatings}
+                        <TableCell>{row.lastName}</TableCell>
+                        <TableCell>{row.email}</TableCell>
+                        <TableCell>{row.contactNumber}</TableCell>
+                        <TableCell>{row.subject}</TableCell>
+                        <TableCell>
+                          {row.message.slice(0, 50)}
+                          {row.message.length > 49 ? "..." : ""}
                         </TableCell>
-                        <TableCell align="right">{row.numberOfSell}</TableCell>
                         <TableCell align="right">
-                          <EditIcon
-                            className="hover:text-primary"
-                            onClick={() => handleEditProduct(row.id)}
-                          />
+                          <Link
+                            to={`/contact/${row.id}`}
+                            onClick={() => window.scrollTo(0, 0)}
+                          >
+                            <VisibilityOutlinedIcon className="hover:text-primary" />
+                          </Link>
                         </TableCell>
                       </TableRow>
                     );

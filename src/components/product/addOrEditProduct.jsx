@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useState, useEffect } from "react";
+import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
 import ImageField from "../../common/image-field";
 import { addProduct, updateProduct } from "../../api/product";
-import AlertMessage from "../../common/alertMessage";
 
 const inputFields = [
   {
@@ -26,11 +25,11 @@ const inputFields = [
 ];
 
 const AddOrEditProduct = (props) => {
-  let { type, handleClose, product, setLoading } = props;
-  product = product || {};
+  const [mounted, setMounted] = useState(true);
+  let { type, handleClose, product, setMessage } = props;
+  product = type === "edit" ? product || {} : {};
   const { productName, price, description, image, featured } = product;
   const [submitting, setSubmitting] = useState(false);
-  const [finalMessage, setFinalMessage] = useState("");
   const [data, setData] = useState({
     productName: productName || "",
     price: price || "",
@@ -46,10 +45,17 @@ const AddOrEditProduct = (props) => {
   const [imageErr, setImageErr] = useState("");
 
   const handleDataChange = (event, property) => {
-    setData({
-      ...data,
-      [property]: event.target.value,
-    });
+    if (typeof event === "string") {
+      setData({
+        ...data,
+        description: event,
+      });
+    } else {
+      setData({
+        ...data,
+        [property]: event.target.value,
+      });
+    }
   };
 
   const handleProductImageChange = (file) => {
@@ -110,21 +116,19 @@ const AddOrEditProduct = (props) => {
           // now send the data to the server
           const { message, error } = await updateProduct(formData);
 
-          if (error) {
-            setFinalMessage({
-              type: "error",
-              message: error,
-            });
-          } else if (message) {
-            setFinalMessage({
-              type: "success",
-              message,
-            });
+          if (mounted) {
+            if (error) {
+              setMessage(
+                error || "Something went wrong while updating the product"
+              );
+            } else if (message) {
+              setMessage("Successfully updated the product");
+              handleClose();
+            }
+            setSubmitting(false);
           }
           setSubmitting(false);
-
-          // call the api for patch request
-        } else if (type === "add") {
+        } else {
           const sendingdata = { ...data };
           delete sendingdata.errors;
 
@@ -132,57 +136,55 @@ const AddOrEditProduct = (props) => {
             sendingdata,
             productImage
           );
-          if (error) {
-            setFinalMessage({
-              type: "error",
-              message: error,
-            });
-          } else if (message) {
-            setFinalMessage({
-              type: "success",
-              message,
-            });
+          if (mounted) {
+            if (error) {
+              setMessage(
+                error || "Something went wrong while adding the product"
+              );
+            } else if (message) {
+              setMessage("Successfully added the product");
+              handleClose();
+            }
+            setSubmitting(false);
           }
-          setSubmitting(false);
         }
       }
     }
   };
 
-  return (
-    <div className="fixed top-0 left-0 z-50 w-full h-screen overflow-hidden">
-      {finalMessage && (
-        <AlertMessage
-          message={finalMessage.message}
-          handleClose={() => {
-            if (finalMessage.type === "success") {
-              handleClose();
-              setLoading(true);
-            }
-            setFinalMessage("");
-          }}
-        />
-      )}
+  useEffect(() => {
+    return () => {
+      setMounted(false);
+    };
+  }, []);
 
-      <div
-        className="fixed top-0 left-0 w-full h-screen bg-gray-500 bg-opacity-30"
-        onClick={handleClose}
-      ></div>
-      <div className="h-full w-full overflow-y-auto flex justify-center popup-container">
+  return (
+    <div>
+      <div className="inline-block mb-4">
         <div
-          className="relative bg-white py-5 px-10 rounded-lg overflow-hidden max-w-3xl my-auto"
+          className="px-4 py-1 flex space-x-4 font-semibold text-white cursor-pointer bg-blue-600 transition-all duration-500 hover:bg-blue-400 rounded"
+          onClick={handleClose}
+        >
+          <div>Go Back</div>
+          <div>
+            <DoubleArrowIcon
+              style={{
+                color: "white",
+                fontSize: "20px",
+                transform: "rotate(180deg)",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="h-full w-full flex justify-center">
+        <div
+          className="relative bg-white py-5 px-10 rounded-lg w-full my-auto"
           style={{ minHeight: "500px", minWidth: "600px" }}
         >
-          <div
-            className="absolute right-1 bg-red-400 hover:bg-red-500 top-1 w-6 h-6 rounded-full flex items-center justify-center"
-            onClick={handleClose}
-          >
-            <CloseIcon className="close-icon" style={{ fontSize: "20px" }} />
-          </div>
-
           <div>
             <div className="text-2xl font-semibold text-secondary2 text-center py-2">
-              {type === "add" ? "Add Product" : "Edit Product"}
+              {type === "add" ? "Add" : "Edit"} Product
             </div>
             {/* Form to create or update the product */}
             <form
@@ -235,9 +237,25 @@ const AddOrEditProduct = (props) => {
                   error={imageErr}
                   disabled={submitting}
                 />
+                {productImage && (
+                  <div className="mt-4">
+                    <img
+                      src={
+                        typeof productImage === "string"
+                          ? `${process.env.REACT_APP_API_BASE_URL}${productImage}`
+                          : URL.createObjectURL(productImage)
+                      }
+                      alt={""}
+                      className="w-72"
+                    />
+                  </div>
+                )}
               </div>
               <div className="pt-5">
-                <AuthButton submitting={submitting} label="Save Product" />
+                <AuthButton
+                  submitting={submitting}
+                  label={`${type === "add" ? "Add" : "Edit"} Product`}
+                />
               </div>
             </form>
           </div>

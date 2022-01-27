@@ -1,4 +1,7 @@
 import React from "react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 import PasswordHideIcon from "../icons/password-hide";
 import PasswordViewIcon from "../icons/password-view";
 
@@ -93,21 +96,29 @@ const InputField = ({
       </div>
     );
   } else if (type === "textarea") {
+    const config = {};
+    config.toolbar = [
+      "heading",
+      "bold",
+      "italic",
+      "undo",
+      "redo",
+      "numberedList",
+      "bulletedList",
+    ];
+
     return (
       <div>
-        <label htmlFor={validation} className="text-gray-500 text-sm">
-          {placeholder} <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          id={validation}
-          value={value}
-          onChange={(event) => changeInputData(event, validation)}
-          className={`input-field w-full resize-none ${
-            submitting ? "input-field-disabled" : ""
-          }`}
-          rows="5"
-          disabled={submitting}
-        ></textarea>
+        <CKEditor
+          editor={ClassicEditor}
+          data={value}
+          config={config}
+          onChange={(event, editor) => {
+            const data = editor.getData();
+            handleChange(data);
+          }}
+          placeholder="Description"
+        />
 
         {error && <div className="text-sm text-red-400 mt-1">{error}</div>}
       </div>

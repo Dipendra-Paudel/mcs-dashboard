@@ -1,44 +1,58 @@
 import React from "react";
 import { render } from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import fetchIntercept from "fetch-intercept";
+import axios from "axios";
+import "./config";
+import RouteManagement from "./RouteManagement";
 import "./assets/css/tailwind.css";
 import "./assets/css/styles.css";
 import "./assets/css/logo.css";
-import RouteManagement from "./RouteManagement";
 
 require("dotenv").config();
 
-export const AuthInterceptor = () => {
-  fetchIntercept.register({
-    request: function (url, config) {
-      // Modify the url or config here
-      url = `${process.env.REACT_APP_API_BASE_URL}${url}`;
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
-      return [url, config];
+const axiosInterceptor = () => {
+  axios.interceptors.request.use(
+    function (config) {
+      // Do something before request is sent
+      config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
+      if (
+        config.method === "post" &&
+        (config.url === "/api/service" || config.url === "/api/product")
+      ) {
+      } else {
+        config.headers["Content-Type"] = "application/json";
+      }
+      return config;
     },
-
-    requestError: function (error) {
-      // Called when an error occured during another 'request' interceptor call
+    function (error) {
+      // Do something with request error
       return Promise.reject(error);
-    },
+    }
+  );
 
-    response: function (response) {
-      // Modify the reponse object
+  axios.interceptors.response.use(
+    function (response) {
       return response;
     },
+    function (error) {
+      if (error.response.status === 401) {
+        window.location = "/login";
+      }
+      return Promise.reject(error.response.data);
+    }
+  );
 
-    responseError: function (error) {
-      // Handle an fetch error
-      return Promise.reject(error);
-    },
-  });
+  // Alter defaults after instance has been created
+  axios.defaults.baseURL = baseUrl;
+  axios.defaults.timeout = 5000;
 };
 
 if (!window.location.href.startsWith("https")) {
   window.location = window.location.href.replace(/^http/, "https:");
 } else if (window.top === window.self) {
-  AuthInterceptor();
+  axiosInterceptor();
 
   render(
     <BrowserRouter>

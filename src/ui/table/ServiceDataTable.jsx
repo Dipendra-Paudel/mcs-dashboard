@@ -21,25 +21,15 @@ import TextField from "@mui/material/TextField";
 import { visuallyHidden } from "@mui/utils";
 import EditIcon from "@mui/icons-material/Edit";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
-import { deleteProducts } from "../../api/product";
+import AlertDialog from "../dialog/AlertDialog";
+import { deleteServices } from "../../api/service";
 
-function createData(
-  id,
-  slug,
-  productName,
-  price,
-  rating,
-  numberOfRatings,
-  numberOfSell
-) {
+function createData(id, slug, serviceName, description) {
   return {
     id,
     slug,
-    productName,
-    price,
-    rating,
-    numberOfRatings,
-    numberOfSell,
+    serviceName,
+    description,
   };
 }
 
@@ -75,32 +65,18 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "productName",
+    id: "serviceName",
     numeric: false,
-    label: "Product Name",
+    label: "Service Name",
   },
   {
-    id: "price",
-    numeric: true,
-    label: "Price",
-  },
-  {
-    id: "rating",
-    numeric: true,
-    label: "Rating",
-  },
-  {
-    id: "numberOfRatings",
-    numeric: true,
-    label: "Number of Ratings",
-  },
-  {
-    id: "numberOfSell",
-    numeric: true,
-    label: "Number of Sell",
+    id: "description",
+    numeric: false,
+    label: "Description",
   },
   {
     id: "action",
+    numeric: false,
     label: "Action",
   },
 ];
@@ -131,11 +107,16 @@ function EnhancedTableHead(props) {
         </TableCell>
         {headCells.map((headCell, index) => (
           <React.Fragment key={index}>
-            {headCell.id === "action" ? (
-              <TableCell align="right">{headCell.label}</TableCell>
+            {headCell.id !== "serviceName" ? (
+              <TableCell
+                align={headCell.id === "description" ? "left" : "right"}
+              >
+                {headCell.label}
+              </TableCell>
             ) : (
               <TableCell
-                align={headCell.id !== "productName" ? "right" : "left"}
+                align="left"
+                className="whitespace-nowrap"
                 sortDirection={orderBy === headCell.id ? order : false}
               >
                 <TableSortLabel
@@ -173,7 +154,7 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
   const {
     numSelected,
-    handleDeleteSelectedProducts,
+    handleDeleteSelectedServices,
     searchValue,
     handleSearchValueChange,
   } = props;
@@ -208,19 +189,19 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Products
+          Services
         </Typography>
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete" onClick={handleDeleteSelectedProducts}>
+        <Tooltip title="Delete" onClick={handleDeleteSelectedServices}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : (
         <TextField
-          label="Search Product"
+          label="Search Service"
           variant="standard"
           value={searchValue}
           onChange={handleSearchValueChange}
@@ -235,36 +216,27 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function ProductDataTable({
-  products,
+export default function ServiceDataTable({
+  services,
   setLoading,
-  setActiveProduct,
+  setActiveService,
   setMessage,
   setType,
 }) {
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("productName");
+  const [orderBy, setOrderBy] = useState("serviceName");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmationPopup, setDeleteConfirmationPopup] = useState(false);
+  const [alertPopup, setAlertPopup] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   const rows = [];
-  products.map((p) => {
-    if (p.productName.toLowerCase().includes(searchValue.toLowerCase())) {
-      rows.push(
-        createData(
-          p._id,
-          p.slug,
-          p.productName,
-          p.price,
-          p.rating,
-          p.numberOfRatings,
-          p.numberOfSell
-        )
-      );
+  services.map((p) => {
+    if (p.serviceName.toLowerCase().includes(searchValue.toLowerCase())) {
+      rows.push(createData(p._id, p.slug, p.serviceName, p.description));
     }
     return null;
   });
@@ -307,15 +279,15 @@ export default function ProductDataTable({
   const handleConfirmationDelete = async (action) => {
     if (action === "ok") {
       setDeleting(true);
-      // call the api to delete selected products
-      const { status, message } = await deleteProducts(selected);
+      // call the api to delete selected services
+      const { status, message } = await deleteServices(selected);
 
       setDeleting(false);
       setDeleteConfirmationPopup(false);
       setMessage(() =>
         status === "success"
-          ? "Successfully deleted the selected products"
-          : message || "Could not delete the selected products"
+          ? "Successfully deleted the selected services"
+          : message || "Could not delete the selected services"
       );
       setLoading(true);
     } else {
@@ -327,9 +299,9 @@ export default function ProductDataTable({
     setPage(newPage);
   };
 
-  const handleEditProduct = (id) => {
-    const activeProduct = products.find((p) => p._id === id);
-    setActiveProduct(activeProduct);
+  const handleEditService = (id) => {
+    const activeService = services.find((p) => p._id === id);
+    setActiveService(activeService);
 
     setType();
   };
@@ -343,7 +315,7 @@ export default function ProductDataTable({
     setPage(0);
   };
 
-  const isSelected = (productName) => selected.indexOf(productName) !== -1;
+  const isSelected = (serviceName) => selected.indexOf(serviceName) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -353,18 +325,24 @@ export default function ProductDataTable({
     <React.Fragment>
       {deleteConfirmationPopup && (
         <ConfirmationDialog
-          message="Are you sure that you want to delete selected products?"
+          message="Are you sure that you want to delete selected services?"
           submitting={deleting}
           handleClose={(action) =>
             !deleting && handleConfirmationDelete(action)
           }
         />
       )}
+      {alertPopup && (
+        <AlertDialog
+          message={alertPopup}
+          handleClose={() => setAlertPopup("")}
+        />
+      )}
       <Box sx={{ width: "100%" }}>
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
-            handleDeleteSelectedProducts={() =>
+            handleDeleteSelectedServices={() =>
               setDeleteConfirmationPopup(true)
             }
             searchValue={searchValue}
@@ -417,18 +395,16 @@ export default function ProductDataTable({
                           scope="row"
                           padding="none"
                         >
-                          {row.productName}
+                          {row.serviceName}
                         </TableCell>
-                        <TableCell align="right">{row.price}</TableCell>
-                        <TableCell align="right">{row.rating}</TableCell>
-                        <TableCell align="right">
-                          {row.numberOfRatings}
+                        <TableCell>
+                          {row.description.slice(0, 100)}
+                          {row.description.length > 99 ? "..." : ""}
                         </TableCell>
-                        <TableCell align="right">{row.numberOfSell}</TableCell>
                         <TableCell align="right">
                           <EditIcon
                             className="hover:text-primary"
-                            onClick={() => handleEditProduct(row.id)}
+                            onClick={() => handleEditService(row.id)}
                           />
                         </TableCell>
                       </TableRow>

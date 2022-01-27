@@ -92,6 +92,7 @@ const Login = ({ setLoggedIn }) => {
             setSubmitting(false);
             setData((d) => ({
               ...d,
+              password: "",
               errors: {
                 ...d.errors,
                 password: error,
