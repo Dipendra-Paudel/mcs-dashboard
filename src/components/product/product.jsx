@@ -3,7 +3,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Slide from "@mui/material/Slide";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import AddOrEditProduct from "./AddOrEditProduct";
+import AddOrEditProduct from "./addOrEditProduct";
 import { SimpleButton } from "../../common/buttons";
 import { getProducts } from "../../api/product";
 import { PageLoader } from "../../common/loader";
