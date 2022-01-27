@@ -4,7 +4,7 @@ import Slide from "@mui/material/Slide";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { SimpleButton } from "../../common/buttons";
-import AddOrEditService from "./AddOrEditService";
+import AddOrEditService from "./addOrEditService";
 import { getServices } from "../../api/service";
 import { PageLoader } from "../../common/loader";
 import ServiceDataTable from "../../ui/table/ServiceDataTable";
