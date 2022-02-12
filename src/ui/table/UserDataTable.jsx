@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ReactHtmlParser from "react-html-parser";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -20,17 +20,18 @@ import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
 import { visuallyHidden } from "@mui/utils";
-import EditIcon from "@mui/icons-material/Edit";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
 import AlertDialog from "../dialog/AlertDialog";
-import { deleteServices } from "../../api/service";
+import { deleteContacts } from "../../api/contact";
 
-function createData(id, slug, serviceName, description) {
+function createData(id, firstName, lastName, email, contact) {
   return {
     id,
-    slug,
-    serviceName,
-    description,
+    firstName,
+    lastName,
+    email,
+    contact,
   };
 }
 
@@ -66,19 +67,24 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "serviceName",
-    numeric: false,
-    label: "Service Name",
+    id: "firstName",
+    label: "First Name",
   },
   {
-    id: "description",
-    numeric: false,
-    label: "Description",
+    id: "lastName",
+    label: "Last Name",
   },
   {
-    id: "action",
-    numeric: false,
-    label: "Action",
+    id: "email",
+    label: "Email",
+  },
+  {
+    id: "contact",
+    label: "Contact",
+  },
+  {
+    id: "preview",
+    label: "Preview",
   },
 ];
 
@@ -108,12 +114,8 @@ function EnhancedTableHead(props) {
         </TableCell>
         {headCells.map((headCell, index) => (
           <React.Fragment key={index}>
-            {headCell.id !== "serviceName" ? (
-              <TableCell
-                align={headCell.id === "description" ? "left" : "right"}
-              >
-                {headCell.label}
-              </TableCell>
+            {headCell.id === "preview" ? (
+              <TableCell align="right">{headCell.label}</TableCell>
             ) : (
               <TableCell
                 align="left"
@@ -155,7 +157,7 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
   const {
     numSelected,
-    handleDeleteSelectedServices,
+    handleDeleteSelectedUsers,
     searchValue,
     handleSearchValueChange,
   } = props;
@@ -190,19 +192,19 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Services
+          Users
         </Typography>
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete" onClick={handleDeleteSelectedServices}>
+        <Tooltip title="Delete" onClick={handleDeleteSelectedUsers}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : (
         <TextField
-          label="Search Service"
+          label="Search User"
           variant="standard"
           value={searchValue}
           onChange={handleSearchValueChange}
@@ -217,15 +219,9 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function ServiceDataTable({
-  services,
-  setLoading,
-  setActiveService,
-  setMessage,
-  setType,
-}) {
+export default function UserDataTable({ users, setLoading }) {
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("serviceName");
+  const [orderBy, setOrderBy] = useState("firstName");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -235,9 +231,9 @@ export default function ServiceDataTable({
   const [searchValue, setSearchValue] = useState("");
 
   const rows = [];
-  services.map((p) => {
-    if (p.serviceName.toLowerCase().includes(searchValue.toLowerCase())) {
-      rows.push(createData(p._id, p.slug, p.serviceName, p.description));
+  users.map((p) => {
+    if (p.firstName.toLowerCase().includes(searchValue.toLowerCase())) {
+      rows.push(createData(p._id, p.firstName, p.lastName, p.email, p.contact));
     }
     return null;
   });
@@ -280,15 +276,15 @@ export default function ServiceDataTable({
   const handleConfirmationDelete = async (action) => {
     if (action === "ok") {
       setDeleting(true);
-      // call the api to delete selected services
-      const { status, message } = await deleteServices(selected);
+      // call the api to delete selected users
+      const { status, message } = await deleteContacts(selected);
 
       setDeleting(false);
       setDeleteConfirmationPopup(false);
-      setMessage(() =>
+      setAlertPopup(() =>
         status === "success"
-          ? "Successfully deleted the selected services"
-          : message || "Could not delete the selected services"
+          ? "Successfully deleted the selected users."
+          : message || "Could not delete the selected users"
       );
       setLoading(true);
     } else {
@@ -300,13 +296,6 @@ export default function ServiceDataTable({
     setPage(newPage);
   };
 
-  const handleEditService = (id) => {
-    const activeService = services.find((p) => p._id === id);
-    setActiveService(activeService);
-
-    setType();
-  };
-
   const handleSearchValueChange = (event) => {
     setSearchValue(event.target.value);
   };
@@ -316,7 +305,7 @@ export default function ServiceDataTable({
     setPage(0);
   };
 
-  const isSelected = (serviceName) => selected.indexOf(serviceName) !== -1;
+  const isSelected = (firstName) => selected.indexOf(firstName) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -326,7 +315,7 @@ export default function ServiceDataTable({
     <React.Fragment>
       {deleteConfirmationPopup && (
         <ConfirmationDialog
-          message="Are you sure that you want to delete selected services?"
+          message="Are you sure that you want to delete selected users?"
           submitting={deleting}
           handleClose={(action) =>
             !deleting && handleConfirmationDelete(action)
@@ -343,9 +332,7 @@ export default function ServiceDataTable({
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
-            handleDeleteSelectedServices={() =>
-              setDeleteConfirmationPopup(true)
-            }
+            handleDeleteSelectedUsers={() => setDeleteConfirmationPopup(true)}
             searchValue={searchValue}
             handleSearchValueChange={handleSearchValueChange}
           />
@@ -369,11 +356,6 @@ export default function ServiceDataTable({
                   .map((row, index) => {
                     const isItemSelected = isSelected(row.id);
                     const labelId = `enhanced-table-checkbox-${index}`;
-
-                    let descriptionToShow =
-                      row.description?.match(/<p>.*?<\/p>/gi);
-                    descriptionToShow &&
-                      (descriptionToShow = descriptionToShow[0]);
 
                     return (
                       <TableRow
@@ -401,18 +383,18 @@ export default function ServiceDataTable({
                           scope="row"
                           padding="none"
                         >
-                          {row.serviceName}
+                          {row.firstName}
                         </TableCell>
-                        <TableCell>
-                          <div className="truncate">
-                            {ReactHtmlParser(descriptionToShow.slice(0, 50))}
-                          </div>
-                        </TableCell>
+                        <TableCell>{row.lastName}</TableCell>
+                        <TableCell>{row.email}</TableCell>
+                        <TableCell>{row.contact}</TableCell>
                         <TableCell align="right">
-                          <EditIcon
-                            className="hover:text-primary"
-                            onClick={() => handleEditService(row.id)}
-                          />
+                          <Link
+                            to={`/users/${row.id}`}
+                            onClick={() => window.scrollTo(0, 0)}
+                          >
+                            <VisibilityOutlinedIcon className="hover:text-primary" />
+                          </Link>
                         </TableCell>
                       </TableRow>
                     );

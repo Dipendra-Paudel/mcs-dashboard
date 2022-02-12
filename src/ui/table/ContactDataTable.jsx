@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import Collapse from "@mui/material/Collapse";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -20,10 +20,11 @@ import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
 import { visuallyHidden } from "@mui/utils";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
 import AlertDialog from "../dialog/AlertDialog";
 import { deleteContacts } from "../../api/contact";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 function createData(
   id,
@@ -92,15 +93,11 @@ const headCells = [
   },
   {
     id: "contactNumber",
-    label: "Contact",
+    label: "Contact Number",
   },
   {
     id: "subject",
     label: "Subject",
-  },
-  {
-    id: "message",
-    label: "Message",
   },
   {
     id: "preview",
@@ -224,7 +221,7 @@ const EnhancedTableToolbar = (props) => {
         </Tooltip>
       ) : (
         <TextField
-          label="Search Product"
+          label="Search Contacts"
           variant="standard"
           value={searchValue}
           onChange={handleSearchValueChange}
@@ -237,6 +234,63 @@ const EnhancedTableToolbar = (props) => {
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
+};
+
+const Row = (props) => {
+  const { row, labelId, isItemSelected, handleClick } = props;
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <TableRow
+        hover
+        role="checkbox"
+        aria-checked={isItemSelected}
+        tabIndex={-1}
+        key={row.id}
+        selected={isItemSelected}
+      >
+        <TableCell padding="checkbox">
+          <Checkbox
+            onClick={() => handleClick(row.id)}
+            color="primary"
+            checked={isItemSelected}
+            inputProps={{
+              "aria-labelledby": labelId,
+            }}
+          />
+        </TableCell>
+        <TableCell component="th" id={labelId} scope="row" padding="none">
+          {row.firstName}
+        </TableCell>
+        <TableCell>{row.lastName}</TableCell>
+        <TableCell>{row.email}</TableCell>
+        <TableCell>{row.contactNumber}</TableCell>
+        <TableCell>{row.subject}</TableCell>
+        <TableCell align="right">
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <td colSpan={7} className="px-3">
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Message
+              </Typography>
+              <div>{row.message}</div>
+            </Box>
+          </Collapse>
+        </td>
+      </TableRow>
+    </React.Fragment>
+  );
 };
 
 export default function ContactDataTable({ contacts, setLoading }) {
@@ -252,7 +306,14 @@ export default function ContactDataTable({ contacts, setLoading }) {
 
   const rows = [];
   contacts.map((p) => {
-    if (p.firstName.toLowerCase().includes(searchValue.toLowerCase())) {
+    let search = searchValue.toLowerCase();
+    if (
+      p.firstName?.toLowerCase().includes(search) ||
+      p.lastName?.toLowerCase().includes(search) ||
+      p.email?.toLowerCase().includes(search) ||
+      String(p.contactNumber)?.toLowerCase().includes(search) ||
+      p.subject?.toLowerCase().includes(search)
+    ) {
       rows.push(
         createData(
           p._id,
@@ -274,15 +335,6 @@ export default function ContactDataTable({ contacts, setLoading }) {
     setOrderBy(property);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.id);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
   const handleChange = (id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
@@ -301,6 +353,15 @@ export default function ContactDataTable({ contacts, setLoading }) {
     }
 
     setSelected(newSelected);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = rows.map((n) => n.id);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
   };
 
   const handleConfirmationDelete = async (action) => {
@@ -390,50 +451,13 @@ export default function ContactDataTable({ contacts, setLoading }) {
                     const labelId = `enhanced-table-checkbox-${index}`;
 
                     return (
-                      <TableRow
-                        hover
-                        role="checkbox"
-                        className=""
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
+                      <Row
                         key={index}
-                        selected={isItemSelected}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            onChange={() => handleChange(row.id)}
-                            inputProps={{
-                              "aria-labelledby": labelId,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                        >
-                          {row.firstName}
-                        </TableCell>
-                        <TableCell>{row.lastName}</TableCell>
-                        <TableCell>{row.email}</TableCell>
-                        <TableCell>{row.contactNumber}</TableCell>
-                        <TableCell>{row.subject}</TableCell>
-                        <TableCell>
-                          {row.message.slice(0, 50)}
-                          {row.message.length > 49 ? "..." : ""}
-                        </TableCell>
-                        <TableCell align="right">
-                          <Link
-                            to={`/contact/${row.id}`}
-                            onClick={() => window.scrollTo(0, 0)}
-                          >
-                            <VisibilityOutlinedIcon className="hover:text-primary" />
-                          </Link>
-                        </TableCell>
-                      </TableRow>
+                        row={row}
+                        labelId={labelId}
+                        isItemSelected={isItemSelected}
+                        handleClick={handleChange}
+                      />
                     );
                   })}
                 {emptyRows > 0 && (

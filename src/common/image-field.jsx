@@ -1,22 +1,29 @@
 import React, { useRef } from "react";
 import imageValidator from "./imageValidator";
 
-const ImageField = ({ fileName, handleChange, error, disabled }) => {
+const ImageField = ({ handleChange, error, disabled }) => {
   const imageRef = useRef();
 
   const handleImageCheck = async (event) => {
-    const result = await imageValidator(event.target.files[0]);
-    handleChange(result ? event.target.files[0] : "Invalid file");
+    const files = event.target.files;
+    const validImages = [];
+    let newFiles = Array.from(files);
+    await newFiles.map(async (file) => {
+      const result = await imageValidator(file);
+      result && validImages.push(file);
+    });
+
+    handleChange(validImages);
   };
 
   return (
     <div className="flex">
       <div
-        className={`px-4 flex-1 bg-gray-200 py-1 truncate 
-        ${!fileName ? "" : error ? "text-red-500" : "text-green-500"}
-        `}
+        className={`px-4 flex-1 bg-gray-200 py-1 truncate ${
+          error ? "text-red-500" : "text-green-500"
+        }`}
       >
-        {fileName || "No Image Selected"}
+        {error || "Select Images for Product"}
       </div>
       <div>
         <input
@@ -25,6 +32,7 @@ const ImageField = ({ fileName, handleChange, error, disabled }) => {
           className="hidden"
           ref={imageRef}
           onChange={handleImageCheck}
+          multiple={true}
         />
         <div
           className={`px-4 py-1 bg-blue-600 text-white ${
@@ -32,7 +40,7 @@ const ImageField = ({ fileName, handleChange, error, disabled }) => {
           }`}
           onClick={() => !disabled && imageRef.current.click()}
         >
-          {error || !fileName ? "Select Image" : "Change Image"}
+          Select Images
         </div>
       </div>
     </div>

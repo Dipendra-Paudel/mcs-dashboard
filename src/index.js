@@ -46,7 +46,7 @@ const axiosInterceptor = () => {
 
   // Alter defaults after instance has been created
   axios.defaults.baseURL = baseUrl;
-  axios.defaults.timeout = 5000;
+  axios.defaults.timeout = 20000;
 };
 
 if (!window.location.href.startsWith("https")) {

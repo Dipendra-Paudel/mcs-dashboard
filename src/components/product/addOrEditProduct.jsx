@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import SelectedImage from "../../ui/image/SelectedImage";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
@@ -28,7 +29,7 @@ const AddOrEditProduct = (props) => {
   const [mounted, setMounted] = useState(true);
   let { type, handleClose, product, setMessage } = props;
   product = type === "edit" ? product || {} : {};
-  const { productName, price, description, image, featured } = product;
+  const { productName, price, description, images, featured } = product;
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState({
     productName: productName || "",
@@ -41,7 +42,9 @@ const AddOrEditProduct = (props) => {
       description: "",
     },
   });
-  const [productImage, setProductImage] = useState(image || "");
+  const [productImages, setProductImages] = useState(images || []);
+  const [addedImages, setAddedImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
   const [imageErr, setImageErr] = useState("");
 
   const handleDataChange = (event, property) => {
@@ -58,15 +61,22 @@ const AddOrEditProduct = (props) => {
     }
   };
 
-  const handleProductImageChange = (file) => {
-    const invalid = "Invalid file";
-    if (file === invalid) {
-      setProductImage("");
-      setImageErr(invalid);
-    } else {
-      setProductImage(file);
-      setImageErr("");
+  const handleProductImageChange = (files) => {
+    setAddedImages((i) => [...files, ...i]);
+    setProductImages((p) => [...files, ...p]);
+  };
+
+  const handleRemoveImage = (index) => {
+    let files = [...productImages];
+    files.splice(index, 1);
+
+    if (typeof productImages[index] === "string") {
+      let rImages = [...removedImages];
+      rImages.push(productImages[index]);
+
+      setRemovedImages(rImages);
     }
+    setProductImages(files);
   };
 
   const handleProductSubmit = async (event) => {
@@ -93,7 +103,7 @@ const AddOrEditProduct = (props) => {
         }));
       }
 
-      if (!productImage) {
+      if (productImages.length === 0) {
         setImageErr("Image is required");
         goAheadAndSubmit = false;
       }
@@ -111,7 +121,14 @@ const AddOrEditProduct = (props) => {
           formData.append("featured", data.featured);
           formData.append("id", product._id);
 
-          productImage?.name && formData.append("image", productImage);
+          removedImages.length > 0 &&
+            formData.append("removedImages", JSON.stringify(removedImages));
+
+          console.log(removedImages);
+
+          if (addedImages.length > 0) {
+            addedImages.map((image) => formData.append("images", image));
+          }
 
           // now send the data to the server
           const { message, error } = await updateProduct(formData);
@@ -134,7 +151,7 @@ const AddOrEditProduct = (props) => {
 
           const { message, error } = await addProduct(
             sendingdata,
-            productImage
+            productImages
           );
           if (mounted) {
             if (error) {
@@ -232,22 +249,19 @@ const AddOrEditProduct = (props) => {
               </div>
               <div>
                 <ImageField
-                  fileName={imageErr || productImage?.name || productImage}
                   handleChange={handleProductImageChange}
                   error={imageErr}
                   disabled={submitting}
                 />
-                {productImage && (
-                  <div className="mt-4">
-                    <img
-                      src={
-                        typeof productImage === "string"
-                          ? `${process.env.REACT_APP_API_BASE_URL}${productImage}`
-                          : URL.createObjectURL(productImage)
-                      }
-                      alt={""}
-                      className="w-72"
-                    />
+                {productImages.length > 0 && (
+                  <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {productImages.map((image, index) => (
+                      <SelectedImage
+                        key={index}
+                        image={image}
+                        handleRemove={() => handleRemoveImage(index)}
+                      />
+                    ))}
                   </div>
                 )}
               </div>

@@ -1,13 +1,13 @@
 import axios from "axios";
 const frontendToken = process.env.REACT_APP_FRONTEND_TOKEN;
 
-export const addProduct = async (sendingdata, image) => {
+export const addProduct = async (sendingdata, images) => {
   const dataArr = Object.keys(sendingdata);
   const formData = new FormData();
   for (let i = 0; i < dataArr.length; i++) {
     formData.append(dataArr[i], sendingdata[dataArr[i]]);
   }
-  formData.append("image", image);
+  images.map((image) => formData.append("images", image));
   formData.append("frontendToken", frontendToken);
   let clientResult = {};
 

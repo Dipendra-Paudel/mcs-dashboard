@@ -69,7 +69,7 @@ function App() {
           handleSidebarLinkClick={handleSidebarLinkClick}
         />
         <div
-          className={`flex-1 bg-gray-100 min-h-screen p-4 md:py-6 md:px-8 transition-all duration-300 text-gray-700 leading-8 ${
+          className={`flex-1 bg-gray-50 min-h-screen p-4 md:py-6 md:px-8 transition-all duration-300 text-gray-700 leading-8 ${
             toggled && width > 1023 && "ml-64"
           }`}
         >
@@ -79,7 +79,7 @@ function App() {
             <Route exact path="/change-password" component={ChangePassword} />
             <Route exact path="/contact" component={Contact} />
             <Route exact path="/users" component={Users} />
-            <Route path="/" component={Dashboard} />
+            <Route exact path="/" component={Dashboard} />
           </Switch>
         </div>
       </div>

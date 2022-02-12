@@ -6,18 +6,27 @@ import ContactDataTable from "../../ui/table/ContactDataTable";
 const Contact = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(true);
 
   useEffect(() => {
     const getContacts = async () => {
       const { contacts } = await getAllContacts("all");
-      setLoading(false);
-      if (contacts && contacts.length > 0) {
-        setContacts(contacts);
+      if (mounted) {
+        setLoading(false);
+        if (contacts && contacts.length > 0) {
+          setContacts(contacts);
+        }
       }
     };
 
     loading && getContacts();
-  }, [loading]);
+  }, [loading, mounted]);
+
+  useEffect(() => {
+    return () => {
+      setMounted(false);
+    };
+  }, []);
 
   if (loading) {
     return (

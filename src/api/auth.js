@@ -117,3 +117,26 @@ export const getAllUsers = async (page, pageLimit) => {
 
   return result;
 };
+
+export const disableUsers = async (users) => {
+  const clientResult = {};
+
+  await axios
+    .patch("/api/user/disable-user", { users, frontendToken })
+    .then((res) => {
+      const { status, message } = res.data;
+      clientResult.status = status;
+      clientResult.message = message;
+    })
+    .catch((error) => {
+      if (error.response) {
+        const { data } = error.response;
+        if (data?.message) {
+          clientResult.status = "fail";
+          clientResult.message = data.message;
+        }
+      }
+    });
+
+  return clientResult;
+};
