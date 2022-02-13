@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ReactHtmlParser from "react-html-parser";
+import parse from "html-react-parser";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -405,7 +405,7 @@ export default function ServiceDataTable({
                         </TableCell>
                         <TableCell>
                           <div className="truncate">
-                            {ReactHtmlParser(descriptionToShow.slice(0, 50))}
+                            {parse(descriptionToShow.slice(0, 50))}
                           </div>
                         </TableCell>
                         <TableCell align="right">
