@@ -124,8 +124,6 @@ const AddOrEditProduct = (props) => {
           removedImages.length > 0 &&
             formData.append("removedImages", JSON.stringify(removedImages));
 
-          console.log(removedImages);
-
           if (addedImages.length > 0) {
             addedImages.map((image) => formData.append("images", image));
           }

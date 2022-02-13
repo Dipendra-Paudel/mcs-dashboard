@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import SelectedImage from "../../ui/image/SelectedImage";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
@@ -22,7 +23,7 @@ const inputFields = [
 const AddOrEditService = (props) => {
   let { type, handleClose, service, setMessage } = props;
   service = type === "edit" ? service || {} : {};
-  const { serviceName, description, image } = service;
+  const { serviceName, description, images } = service;
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(true);
   const [data, setData] = useState({
@@ -33,7 +34,9 @@ const AddOrEditService = (props) => {
       description: "",
     },
   });
-  const [serviceImage, setServiceImage] = useState(image || "");
+  const [serviceImages, setServiceImages] = useState(images || []);
+  const [addedImages, setAddedImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
   const [imageErr, setImageErr] = useState("");
 
   const handleDataChange = (event, property) => {
@@ -50,15 +53,22 @@ const AddOrEditService = (props) => {
     }
   };
 
-  const handleServiceImageChange = (file) => {
-    const invalid = "Invalid file";
-    if (file === invalid) {
-      setServiceImage("");
-      setImageErr(invalid);
-    } else {
-      setServiceImage(file);
-      setImageErr("");
+  const handleProductImageChange = (files) => {
+    setAddedImages((i) => [...files, ...i]);
+    setServiceImages((p) => [...files, ...p]);
+  };
+
+  const handleRemoveImage = (index) => {
+    let files = [...serviceImages];
+    files.splice(index, 1);
+
+    if (typeof serviceImages[index] === "string") {
+      let rImages = [...removedImages];
+      rImages.push(serviceImages[index]);
+
+      setRemovedImages(rImages);
     }
+    setServiceImages(files);
   };
 
   const handleServiceSubmit = async (event) => {
@@ -85,7 +95,7 @@ const AddOrEditService = (props) => {
         }));
       }
 
-      if (!serviceImage) {
+      if (serviceImages.length === 0) {
         setImageErr("Image is required");
         goAheadAndSubmit = false;
       }
@@ -100,8 +110,12 @@ const AddOrEditService = (props) => {
           );
 
           formData.append("id", service._id);
+          removedImages.length > 0 &&
+            formData.append("removedImages", JSON.stringify(removedImages));
 
-          serviceImage?.name && formData.append("image", serviceImage);
+          if (addedImages.length > 0) {
+            addedImages.map((image) => formData.append("images", image));
+          }
 
           // now send the data to the server
           const { message, error } = await updateService(formData);
@@ -125,7 +139,7 @@ const AddOrEditService = (props) => {
 
           const { message, error } = await addService(
             sendingdata,
-            serviceImage
+            serviceImages
           );
 
           if (mounted) {
@@ -197,22 +211,19 @@ const AddOrEditService = (props) => {
                 ))}
                 <div>
                   <ImageField
-                    fileName={imageErr || serviceImage?.name || serviceImage}
-                    handleChange={handleServiceImageChange}
+                    handleChange={handleProductImageChange}
                     error={imageErr}
                     disabled={submitting}
                   />
-                  {serviceImage && (
-                    <div className="mt-4">
-                      <img
-                        src={
-                          typeof serviceImage === "string"
-                            ? `${process.env.REACT_APP_API_BASE_URL}${serviceImage}`
-                            : URL.createObjectURL(serviceImage)
-                        }
-                        alt={""}
-                        className="w-72"
-                      />
+                  {serviceImages.length > 0 && (
+                    <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {serviceImages.map((image, index) => (
+                        <SelectedImage
+                          key={index}
+                          image={image}
+                          handleRemove={() => handleRemoveImage(index)}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>

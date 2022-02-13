@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import imageValidator from "./imageValidator";
 
-const ImageField = ({ handleChange, error, disabled }) => {
+const ImageField = ({ handleChange, error, disabled, type }) => {
   const imageRef = useRef();
 
   const handleImageCheck = async (event) => {
@@ -23,7 +23,7 @@ const ImageField = ({ handleChange, error, disabled }) => {
           error ? "text-red-500" : "text-green-500"
         }`}
       >
-        {error || "Select Images for Product"}
+        {error || `Select Images for ${type || "Product"}`}
       </div>
       <div>
         <input
