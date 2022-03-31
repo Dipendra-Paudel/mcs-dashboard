@@ -8,6 +8,7 @@ import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PaymentOutlinedIcon from "@mui/icons-material/PaymentOutlined";
+import CategoryIcon from "@mui/icons-material/Category";
 
 // icons from the svg files
 import ProductIcon from "../icons/product-icon";
@@ -36,6 +37,8 @@ export default function IconManager({ icon, ...remaining }) {
     return <LockOutlinedIcon {...remaining} />;
   } else if (icon === "Payment") {
     return <PaymentOutlinedIcon {...remaining} />;
+  } else if (icon === "Category") {
+    return <CategoryIcon {...remaining} />;
   } else {
     return null;
   }

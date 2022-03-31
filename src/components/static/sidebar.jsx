@@ -15,6 +15,11 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       link: "/product",
     },
     {
+      title: "Product Category",
+      icon: "Category",
+      link: "/product-category",
+    },
+    {
       title: "Service",
       icon: "Service",
       link: "/service",
@@ -71,7 +76,7 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
               to={link}
               key={index}
               onClick={handleSidebarLinkClick}
-              className="px-10 flex items-center hover:bg-gray-200 py-2 space-x-2 text-gray-700"
+              className="px-10 flex items-center py-2 space-x-2 text-gray-700"
               activeClassName="bg-gray-200"
               exact
             >
