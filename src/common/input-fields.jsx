@@ -1,6 +1,11 @@
 import React from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import Box from "@mui/material/Box";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
 import PasswordHideIcon from "../icons/password-hide";
 import PasswordViewIcon from "../icons/password-view";
@@ -12,6 +17,7 @@ const InputField = ({
   handleChange,
   placeholder,
   validation,
+  options,
   handleInputFieldChange,
   submitting,
 }) => {
@@ -78,19 +84,26 @@ const InputField = ({
   } else if (type === "select") {
     return (
       <div>
-        <label htmlFor={validation} className="text-gray-500 text-sm">
-          {placeholder} <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          id={validation}
-          value={value}
-          onChange={(event) => changeInputData(event, validation)}
-          className={`input-field w-full resize-none ${
-            submitting ? "input-field-disabled" : ""
-          }`}
-          rows="5"
-          disabled={submitting}
-        ></textarea>
+        <Box sx={{ minWidth: 120 }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">{placeholder}</InputLabel>
+            <Select
+              value={value}
+              label={placeholder}
+              onChange={(event) => changeInputData(event, validation)}
+            >
+              {options.map((option, index) => {
+                const { _id, categoryName } = option;
+
+                return (
+                  <MenuItem value={_id} key={index}>
+                    {categoryName}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Box>
 
         {error && <div className="text-sm text-red-400 mt-1">{error}</div>}
       </div>

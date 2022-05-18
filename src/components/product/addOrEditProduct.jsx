@@ -19,6 +19,11 @@ const inputFields = [
     placeholder: "Price",
   },
   {
+    type: "select",
+    validation: "category",
+    placeholder: "Select Product Category",
+  },
+  {
     type: "textarea",
     validation: "description",
     placeholder: "Product Description",
@@ -27,13 +32,16 @@ const inputFields = [
 
 const AddOrEditProduct = (props) => {
   const [mounted, setMounted] = useState(true);
-  let { type, handleClose, product, setMessage } = props;
+  let { type, handleClose, product, setMessage, categories } = props;
   product = type === "edit" ? product || {} : {};
-  const { productName, price, description, images, featured } = product;
+  const { productName, price, category, description, images, featured } =
+    product;
+
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState({
     productName: productName || "",
     price: price || "",
+    category: category?._id || "",
     description: description || "",
     featured: featured || false,
     errors: {
@@ -199,7 +207,7 @@ const AddOrEditProduct = (props) => {
         >
           <div>
             <div className="text-2xl font-semibold text-secondary2 text-center py-2">
-              {type === "add" ? "Add" : "Edit"} Product
+              {type === "add" ? "Add Product" : "Save"}
             </div>
             {/* Form to create or update the product */}
             <form
@@ -209,12 +217,7 @@ const AddOrEditProduct = (props) => {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 {inputFields.map((inputField, index) => (
-                  <div
-                    key={index}
-                    className={
-                      inputFields.length - 1 === index ? "col-span-2" : ""
-                    }
-                  >
+                  <div key={index} className={index > 1 ? "col-span-2" : ""}>
                     <InputField
                       {...inputField}
                       value={data[inputField.validation]}
@@ -222,6 +225,7 @@ const AddOrEditProduct = (props) => {
                       error={data.errors[inputField.validation]}
                       submitting={submitting}
                       handleInputFieldChange={() => null}
+                      options={inputField.type === "select" ? categories : []}
                     />
                   </div>
                 ))}

@@ -8,6 +8,7 @@ import { SimpleButton } from "../../common/buttons";
 import { getProducts } from "../../api/product";
 import { PageLoader } from "../../common/loader";
 import ProductDataTable from "../../ui/table/ProductDataTable";
+import { getCategories } from "../../api/category";
 
 function TransitionUp(props) {
   return <Slide {...props} direction="up" />;
@@ -19,6 +20,7 @@ const Product = (props) => {
 
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [activeProduct, setActiveProduct] = useState("");
   const [type, setType] = useState("");
 
@@ -38,10 +40,12 @@ const Product = (props) => {
   useEffect(() => {
     const asyncGetProducts = async () => {
       const { products } = await getProducts("all");
+      const categories = await getCategories();
       setLoading(false);
 
-      if (products && mounted) {
-        setProducts(products);
+      if (mounted) {
+        products && setProducts(products);
+        setCategories(categories);
       }
     };
 
@@ -79,6 +83,7 @@ const Product = (props) => {
             <AddOrEditProduct
               type={type}
               product={activeProduct}
+              categories={categories}
               handleClose={() => {
                 window.scrollTo(0, 0);
                 setLoading(true);

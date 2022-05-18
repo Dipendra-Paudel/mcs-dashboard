@@ -1,7 +1,13 @@
 import React, { useRef } from "react";
 import imageValidator from "./imageValidator";
 
-const ImageField = ({ handleChange, error, disabled, type }) => {
+const ImageField = ({
+  handleChange,
+  error,
+  disabled,
+  type,
+  multiple = true,
+}) => {
   const imageRef = useRef();
 
   const handleImageCheck = async (event) => {
@@ -23,7 +29,7 @@ const ImageField = ({ handleChange, error, disabled, type }) => {
           error ? "text-red-500" : "text-green-500"
         }`}
       >
-        {error || `Select Images for ${type || "Product"}`}
+        {error || `Select Image${multiple ? "s" : ""} for ${type || "Product"}`}
       </div>
       <div>
         <input
@@ -32,7 +38,7 @@ const ImageField = ({ handleChange, error, disabled, type }) => {
           className="hidden"
           ref={imageRef}
           onChange={handleImageCheck}
-          multiple={true}
+          multiple={multiple}
         />
         <div
           className={`px-4 py-1 bg-blue-600 text-white ${
@@ -40,7 +46,7 @@ const ImageField = ({ handleChange, error, disabled, type }) => {
           }`}
           onClick={() => !disabled && imageRef.current.click()}
         >
-          Select Images
+          Select Image{multiple ? "s" : ""}
         </div>
       </div>
     </div>

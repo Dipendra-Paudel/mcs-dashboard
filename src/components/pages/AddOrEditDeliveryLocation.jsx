@@ -3,32 +3,45 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import InputField from "../../common/input-fields";
 import { AuthButton } from "../../common/buttons";
 import formValidator from "../../common/formValidator";
-import ImageField from "../../common/image-field";
-import { addCategory, updateCategory } from "../../api/category";
-import SelectedImage from "../../ui/image/SelectedImage";
+import {
+  addDeliveryLocation,
+  updateDeliveryLocation,
+} from "../../api/deliveryLocation";
 
 const inputFields = [
   {
     type: "text",
-    validation: "categoryName",
-    placeholder: "Product Category",
+    validation: "ward",
+    placeholder: "Ward No.",
+  },
+  {
+    type: "text",
+    validation: "tole",
+    placeholder: "Tole",
+  },
+  {
+    type: "text",
+    validation: "charge",
+    placeholder: "Delivery Charge (Rs.)",
   },
 ];
 
-const AddOrEditProductCategory = (props) => {
+const AddOrEditDeliveryLocation = (props) => {
   const [mounted, setMounted] = useState(true);
-  let { type, handleClose, category, setMessage } = props;
-  category = type === "add" ? {} : category;
-  const { categoryName } = category;
-
-  const [image, setImage] = useState(category?.image || "");
-  const [imageErr, setImageErr] = useState("");
+  let { type, handleClose, deliveryLocation, setMessage } = props;
+  deliveryLocation = type === "add" ? {} : deliveryLocation;
+  const { ward, tole, charge } = deliveryLocation;
 
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState({
-    categoryName: categoryName || "",
+    ward: ward || "",
+    tole: tole || "",
+    charge: charge || "",
+
     errors: {
-      categoryName: "",
+      ward: "",
+      tole: "",
+      charge: "",
     },
   });
 
@@ -39,11 +52,7 @@ const AddOrEditProductCategory = (props) => {
     });
   };
 
-  const handleCategoryImageChange = (files) => {
-    setImage(files[0]);
-  };
-
-  const handleProductCategorySubmit = async (event) => {
+  const handleDeliveryLocationSubmit = async (event) => {
     event.preventDefault();
 
     if (!submitting) {
@@ -68,49 +77,49 @@ const AddOrEditProductCategory = (props) => {
         }));
       }
 
-      if (!image) {
-        setImageErr("Image for category is required");
-        goAheadAndSubmit = false;
-      }
-
       // if there are no errors proceed to submit the data to the server
       if (goAheadAndSubmit) {
         setSubmitting(true);
 
-        const { categoryName } = data;
+        const { ward, tole, charge } = data;
 
         if (type === "edit") {
-          const formData = new FormData();
-          formData.append("id", category._id);
-          formData.append("categoryName", categoryName);
+          const obj = {
+            id: deliveryLocation?._id,
+            ward,
+            tole,
+            charge,
+          };
 
-          if (typeof image !== "string") {
-            formData.append("image", image);
-          }
-
-          const { message, error } = await updateCategory(formData);
+          const { message, error } = await updateDeliveryLocation(obj);
 
           if (mounted) {
             if (error) {
               setMessage(
-                error || "Something went wrong while updating the category"
+                error ||
+                  "Something went wrong while updating the delivery location"
               );
             } else if (message) {
-              setMessage("Successfully updated the category");
+              setMessage("Successfully updated the delivery location");
               handleClose();
             }
             setSubmitting(false);
           }
           setSubmitting(false);
         } else {
-          const { message, error } = await addCategory(categoryName, image);
+          const { message, error } = await addDeliveryLocation({
+            ward,
+            tole,
+            charge,
+          });
           if (mounted) {
             if (error) {
               setMessage(
-                error || "Something went wrong while adding the category"
+                error ||
+                  "Something went wrong while adding the delivery location"
               );
             } else if (message) {
-              setMessage("Successfully added the category");
+              setMessage("Successfully added the delivery location");
               handleClose();
             }
             setSubmitting(false);
@@ -152,11 +161,11 @@ const AddOrEditProductCategory = (props) => {
         >
           <div>
             <div className="text-2xl font-semibold text-secondary2 text-center py-2">
-              {type === "add" ? "Add" : "Edit"} Category
+              {type === "add" ? "Add" : "Edit"} Delivery Location
             </div>
-            {/* Form to create or update the category */}
+            {/* Form to create or update the delivery location */}
             <form
-              onSubmit={handleProductCategorySubmit}
+              onSubmit={handleDeliveryLocationSubmit}
               autoComplete="off"
               spellCheck="false"
             >
@@ -179,26 +188,11 @@ const AddOrEditProductCategory = (props) => {
                   </div>
                 ))}
               </div>
-              <div className="space-y-4 mt-4">
-                <ImageField
-                  handleChange={handleCategoryImageChange}
-                  error={imageErr}
-                  disabled={submitting}
-                  multiple={false}
-                  type="Category"
-                />
-                {image && (
-                  <SelectedImage
-                    image={image}
-                    handleRemove={() => setImage("")}
-                  />
-                )}
-              </div>
 
               <div className="pt-5">
                 <AuthButton
                   submitting={submitting}
-                  label={`${type === "add" ? "Add" : "Edit"} Category`}
+                  label={`${type === "add" ? "Add" : "Edit"} Delivery Location`}
                 />
               </div>
             </form>
@@ -209,4 +203,4 @@ const AddOrEditProductCategory = (props) => {
   );
 };
 
-export default AddOrEditProductCategory;
+export default AddOrEditDeliveryLocation;

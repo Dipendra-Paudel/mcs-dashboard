@@ -2,7 +2,12 @@ import { Link, NavLink } from "react-router-dom";
 import IconManager from "../../common/icon-manager";
 import companyLogo from "../../assets/images/logo.svg";
 
-export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
+export default function Sidebar({
+  width,
+  toggled,
+  handleSidebarLinkClick,
+  handleClose,
+}) {
   let sidebarItems = [
     {
       title: "Dashboard",
@@ -25,6 +30,11 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       link: "/service",
     },
     {
+      title: "Delivery Locations",
+      icon: "Location",
+      link: "/delivery-locations",
+    },
+    {
       title: "Contacts",
       icon: "Contact",
       link: "/contact",
@@ -45,26 +55,6 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
       icon: "Password",
     },
   ];
-
-  if (width < 1023) {
-    sidebarItems = sidebarItems.concat([
-      {
-        title: "Profile",
-        icon: "Profile",
-        link: "/profile",
-      },
-      {
-        title: "Settings",
-        icon: "Settings",
-        link: "/settings",
-      },
-      {
-        title: "Logout",
-        icon: "Logout",
-        link: "/logout",
-      },
-    ]);
-  }
 
   const SidebarContents = () => {
     return (
@@ -92,34 +82,38 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
   };
 
   return (
-    <>
+    <div>
       {width < 1024 && (
-        <div
-          id="sidebar"
-          className={`overflow-hidden transition-all ease-out duration-300 fixed top-0 lg:top-16 h-screen overflow-y-auto z-20 lg:z-0 bg-white
+        <>
+          <div
+            id="sidebar"
+            className={`overflow-hidden transition-all ease-out duration-300 fixed top-0 lg:top-16 h-screen overflow-y-auto z-30 lg:z-0 bg-white
       ${toggled ? "w-64" : "w-0"}
       `}
-        >
-          <div className="flex flex-col w-64 py-3 lg:py-5">
-            <div className="flex items-center justify-center h-16 mb-2 space-x-2">
-              <Link
-                to="/"
-                className="w-12 h-12 rounded-full overflow-hidden border-gray-400"
-              >
-                <img
-                  src={companyLogo}
-                  alt=""
-                  className="w-full h-full rounded-full object-cover object-center"
-                />
-              </Link>
-              <Link to="/" className="text-lg font-semibold text-primary">
-                Mister Computer Solutions
-              </Link>
+          >
+            <div className="flex flex-col w-64 py-3 lg:py-5">
+              <div className="flex items-center px-10 h-16 mb-2 space-x-2 border-b border-gray-300">
+                <Link to="/">
+                  <img
+                    src={companyLogo}
+                    alt=""
+                    className="h-10 w-auto object-cover object-center"
+                  />
+                </Link>
+              </div>
+              <SidebarContents />
             </div>
-            <SidebarContents />
           </div>
-        </div>
+
+          {toggled && (
+            <div
+              className="fixed z-20 top-0 left-0 w-screen min-h-screen h-screen bg-black bg-opacity-50"
+              onClick={handleClose}
+            ></div>
+          )}
+        </>
       )}
+
       {width > 1023 && (
         <div
           id="sidebar"
@@ -132,6 +126,6 @@ export default function Sidebar({ width, toggled, handleSidebarLinkClick }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

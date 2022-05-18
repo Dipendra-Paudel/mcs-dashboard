@@ -7,7 +7,8 @@ const formValidator = (value, validation, validateAll = true) => {
     value.trim() === "" &&
     validation !== "password" &&
     validation !== "confirmPassword" &&
-    validation !== "discountPrice"
+    validation !== "discountPrice" &&
+    validation === "charge"
   ) {
     error = `This field is required`;
   } else if (validateAll) {
@@ -77,6 +78,26 @@ const formValidator = (value, validation, validateAll = true) => {
       if (value.trim().length < 20) {
         error =
           "Your message is too short. Please explain more!!! (at least 20 characters)";
+      }
+    }
+
+    // validation for ward
+    else if (validation === "ward") {
+      // eslint-disable-next-line
+      if (+value !== +value) {
+        error = "Ward must be number";
+      } else if (value < 1) {
+        error = "Ward must be greater than 0";
+      }
+    }
+
+    // validation for charge
+    else if (validation === "charge") {
+      // eslint-disable-next-line
+      if (+value !== +value) {
+        error = "Delivery charge must be number";
+      } else if (value < 0) {
+        error = "Delivery charge cannot be negative";
       }
     }
   }

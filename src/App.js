@@ -9,6 +9,7 @@ import Sidebar from "./components/static/sidebar";
 import Contact from "./components/pages/Contact";
 import Users from "./components/pages/Users";
 import ProductCategory from "./components/pages/ProductCategory";
+import DeliveryLocation from "./components/pages/DeliveryLocation";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -68,6 +69,7 @@ function App() {
           width={width}
           toggled={toggled}
           handleSidebarLinkClick={handleSidebarLinkClick}
+          handleClose={() => setToggled(false)}
         />
         <div
           className={`flex-1 bg-gray-50 min-h-screen p-4 md:py-6 md:px-8 transition-all duration-300 text-gray-700 leading-8 ${
@@ -78,6 +80,11 @@ function App() {
             <Route exact path="/product" component={Product} />
             <Route exact path="/product-category" component={ProductCategory} />
             <Route exact path="/service" component={Service} />
+            <Route
+              exact
+              path="/delivery-locations"
+              component={DeliveryLocation}
+            />
             <Route exact path="/change-password" component={ChangePassword} />
             <Route exact path="/contact" component={Contact} />
             <Route exact path="/users" component={Users} />

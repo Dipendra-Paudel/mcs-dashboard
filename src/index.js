@@ -17,13 +17,8 @@ const axiosInterceptor = () => {
     function (config) {
       // Do something before request is sent
       config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-      if (
-        config.method === "post" &&
-        (config.url === "/api/service" || config.url === "/api/product")
-      ) {
-      } else {
-        config.headers["Content-Type"] = "application/json";
-      }
+      config.headers["Content-Type"] = "application/json";
+
       return config;
     },
     function (error) {
@@ -46,24 +41,24 @@ const axiosInterceptor = () => {
 
   // Alter defaults after instance has been created
   axios.defaults.baseURL = baseUrl;
-  axios.defaults.timeout = 20000;
+  axios.defaults.timeout = 5000;
 };
 
-if (!window.location.href.startsWith("https")) {
-  window.location = window.location.href.replace(/^http/, "https:");
-} else if (window.top === window.self) {
-  axiosInterceptor();
+// if (!window.location.href.startsWith("https")) {
+//   window.location = window.location.href.replace(/^http/, "https:");
+// } else if (window.top === window.self) {
+axiosInterceptor();
 
-  render(
-    <BrowserRouter>
-      <RouteManagement />
-    </BrowserRouter>,
-    document.getElementById("root")
-  );
-} else {
-  render(
-    <h1 className="text-5xl font-bold">Fuck you</h1>,
-    document.getElementById("root")
-  );
-  for (let i = 0; i > -1; i++) {}
-}
+render(
+  <BrowserRouter>
+    <RouteManagement />
+  </BrowserRouter>,
+  document.getElementById("root")
+);
+// } else {
+//   render(
+//     <h1 className="text-5xl font-bold">Fuck you</h1>,
+//     document.getElementById("root")
+//   );
+//   for (let i = 0; i > -1; i++) {}
+// }

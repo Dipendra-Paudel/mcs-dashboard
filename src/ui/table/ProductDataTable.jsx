@@ -27,19 +27,19 @@ function createData(
   id,
   slug,
   productName,
+  category,
   price,
   rating,
-  numberOfRatings,
-  numberOfSell
+  numberOfRatings
 ) {
   return {
     id,
     slug,
     productName,
+    category,
     price,
     rating,
     numberOfRatings,
-    numberOfSell,
   };
 }
 
@@ -80,6 +80,11 @@ const headCells = [
     label: "Product Name",
   },
   {
+    id: "category",
+    numeric: false,
+    label: "Category",
+  },
+  {
     id: "price",
     numeric: true,
     label: "Price",
@@ -93,11 +98,6 @@ const headCells = [
     id: "numberOfRatings",
     numeric: true,
     label: "Number of Ratings",
-  },
-  {
-    id: "numberOfSell",
-    numeric: true,
-    label: "Number of Sell",
   },
   {
     id: "action",
@@ -253,16 +253,19 @@ export default function ProductDataTable({
 
   const rows = [];
   products.map((p) => {
-    if (p.productName.toLowerCase().includes(searchValue.toLowerCase())) {
+    if (
+      p.productName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      p.category?.categoryName.toLowerCase().includes(searchValue.toLowerCase())
+    ) {
       rows.push(
         createData(
           p._id,
           p.slug,
           p.productName,
+          p.category?.categoryName,
           p.price,
           p.rating,
-          p.numberOfRatings,
-          p.numberOfSell
+          p.numberOfRatings
         )
       );
     }
@@ -419,12 +422,12 @@ export default function ProductDataTable({
                         >
                           {row.productName}
                         </TableCell>
+                        <TableCell align="right">{row.category}</TableCell>
                         <TableCell align="right">{row.price}</TableCell>
                         <TableCell align="right">{row.rating}</TableCell>
                         <TableCell align="right">
                           {row.numberOfRatings}
                         </TableCell>
-                        <TableCell align="right">{row.numberOfSell}</TableCell>
                         <TableCell align="right">
                           <EditIcon
                             className="hover:text-primary"

@@ -21,12 +21,14 @@ import TextField from "@mui/material/TextField";
 import { visuallyHidden } from "@mui/utils";
 import EditIcon from "@mui/icons-material/Edit";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
-import { deleteCategories } from "../../api/category";
+import { deleteDeliveryLocations } from "../../api/deliveryLocation";
 
-function createData(id, categoryName) {
+function createData(id, ward, tole, charge) {
   return {
     id,
-    categoryName,
+    ward,
+    tole,
+    charge,
   };
 }
 
@@ -62,9 +64,19 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "categoryName",
+    id: "ward",
+    numeric: true,
+    label: "Ward No.",
+  },
+  {
+    id: "tole",
     numeric: false,
-    label: "Product Category",
+    label: "Tole",
+  },
+  {
+    id: "charge",
+    numeric: true,
+    label: "DeliveryCharge",
   },
   {
     id: "action",
@@ -102,7 +114,7 @@ function EnhancedTableHead(props) {
               <TableCell align="right">{headCell.label}</TableCell>
             ) : (
               <TableCell
-                align={headCell.id !== "categoryName" ? "right" : "left"}
+                align={headCell.id !== "ward" ? "right" : "left"}
                 sortDirection={orderBy === headCell.id ? order : false}
               >
                 <TableSortLabel
@@ -140,7 +152,7 @@ EnhancedTableHead.propTypes = {
 const EnhancedTableToolbar = (props) => {
   const {
     numSelected,
-    handleDeleteSelectedCategories,
+    handleDeleteSelectedDeliveryLocations,
     searchValue,
     handleSearchValueChange,
   } = props;
@@ -175,19 +187,19 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Product Categories
+          Delivery Locations
         </Typography>
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete" onClick={handleDeleteSelectedCategories}>
+        <Tooltip title="Delete" onClick={handleDeleteSelectedDeliveryLocations}>
           <IconButton>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : (
         <TextField
-          label="Search Category"
+          label="Search Delivery Location"
           variant="standard"
           value={searchValue}
           onChange={handleSearchValueChange}
@@ -202,15 +214,15 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function CategoryDataTable({
-  categories,
+export default function DeliveryLocationDataTable({
+  deliveryLocations,
   setLoading,
-  setActiveCategory,
+  setActiveDeliveryLocation,
   setMessage,
   setType,
 }) {
   const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("categoryName");
+  const [orderBy, setOrderBy] = useState("ward");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -219,9 +231,13 @@ export default function CategoryDataTable({
   const [searchValue, setSearchValue] = useState("");
 
   const rows = [];
-  categories.map((p) => {
-    if (p.categoryName.toLowerCase().includes(searchValue.toLowerCase())) {
-      rows.push(createData(p._id, p.categoryName));
+  deliveryLocations.map((p) => {
+    if (
+      p.tole.toLowerCase().includes(searchValue.toLowerCase()) ||
+      String(p.ward).includes(searchValue.toLowerCase()) ||
+      String(p.charge).includes(searchValue.toLowerCase())
+    ) {
+      rows.push(createData(p._id, p.ward, p.tole, p.charge));
     }
     return null;
   });
@@ -264,15 +280,15 @@ export default function CategoryDataTable({
   const handleConfirmationDelete = async (action) => {
     if (action === "ok") {
       setDeleting(true);
-      // call the api to delete selected categories
-      const { status, message } = await deleteCategories(selected);
+      // call the api to delete selected deliveryLocations
+      const { status, message } = await deleteDeliveryLocations(selected);
 
       setDeleting(false);
       setDeleteConfirmationPopup(false);
       setMessage(() =>
         status === "success"
-          ? "Successfully deleted the selected categories"
-          : message || "Could not delete the selected categories"
+          ? "Successfully deleted the selected delivery locations"
+          : message || "Could not delete the selected delivery locations"
       );
       setLoading(true);
     } else {
@@ -284,9 +300,9 @@ export default function CategoryDataTable({
     setPage(newPage);
   };
 
-  const handleEditCategory = (id) => {
-    const activeCategory = categories.find((p) => p._id === id);
-    setActiveCategory(activeCategory);
+  const handleEditDeliveryLocation = (id) => {
+    const deliveryLocation = deliveryLocations.find((p) => p._id === id);
+    setActiveDeliveryLocation(deliveryLocation);
 
     setType();
   };
@@ -300,7 +316,7 @@ export default function CategoryDataTable({
     setPage(0);
   };
 
-  const isSelected = (categoryName) => selected.indexOf(categoryName) !== -1;
+  const isSelected = (ward) => selected.indexOf(ward) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -310,7 +326,7 @@ export default function CategoryDataTable({
     <React.Fragment>
       {deleteConfirmationPopup && (
         <ConfirmationDialog
-          message="Are you sure that you want to delete selected categories?"
+          message="Are you sure that you want to delete selected delivery locations?"
           submitting={deleting}
           handleClose={(action) =>
             !deleting && handleConfirmationDelete(action)
@@ -321,7 +337,7 @@ export default function CategoryDataTable({
         <Paper sx={{ width: "100%", mb: 2 }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
-            handleDeleteSelectedCategories={() =>
+            handleDeleteSelectedDeliveryLocations={() =>
               setDeleteConfirmationPopup(true)
             }
             searchValue={searchValue}
@@ -374,12 +390,14 @@ export default function CategoryDataTable({
                           scope="row"
                           padding="none"
                         >
-                          <div className="pl-4">{row.categoryName}</div>
+                          <div className="pl-4">{row.ward}</div>
                         </TableCell>
+                        <TableCell align="right">{row.tole}</TableCell>
+                        <TableCell align="right">Rs. {row.charge}</TableCell>
                         <TableCell align="right">
                           <EditIcon
                             className="hover:text-primary"
-                            onClick={() => handleEditCategory(row.id)}
+                            onClick={() => handleEditDeliveryLocation(row.id)}
                           />
                         </TableCell>
                       </TableRow>

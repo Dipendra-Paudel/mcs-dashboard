@@ -1,23 +1,17 @@
 import axios from "axios";
 const frontendToken = process.env.REACT_APP_FRONTEND_TOKEN;
 
-export const addCategory = async (categoryName, image) => {
+export const addDeliveryLocation = async (obj) => {
   let clientResult = {};
 
-  const formData = new FormData();
-  formData.append("categoryName", categoryName);
-  formData.append("image", image);
-  formData.append("frontendToken", frontendToken);
-
   await axios
-    .post("/api/product-category", formData)
+    .post("/api/delivery-location", { ...obj, frontendToken })
     .then((res) => {
       const { status, message } = res.data;
       status === "success" && (clientResult = { status, message });
       status !== "success" && (clientResult = { status, error: message });
     })
     .catch((error) => {
-      console.log(error);
       const { status, message } = error;
       if (typeof status === "string") {
         clientResult.status = status;
@@ -28,17 +22,17 @@ export const addCategory = async (categoryName, image) => {
   return clientResult;
 };
 
-export const getCategories = async () => {
+export const getDeliveryLocations = async () => {
   let result = [];
 
   await axios
-    .post("/api/product-category/all", {
+    .post("/api/delivery-location/all", {
       frontendToken,
     })
     .then((res) => {
       const { status, data } = res.data;
-      if (status === "success" && data?.categories) {
-        result = data.categories;
+      if (status === "success" && data?.locations) {
+        result = data.locations;
       }
     })
     .catch(() => {});
@@ -46,13 +40,11 @@ export const getCategories = async () => {
   return result;
 };
 
-export const updateCategory = async (formData) => {
+export const updateDeliveryLocation = async (obj) => {
   let clientResult = {};
 
-  formData.append("frontendToken", frontendToken);
-
   await axios
-    .patch("/api/product-category", formData)
+    .patch("/api/delivery-location", { ...obj, frontendToken })
     .then((res) => {
       const { status, message } = res.data;
       if (status === "success") {
@@ -78,11 +70,11 @@ export const updateCategory = async (formData) => {
   return clientResult;
 };
 
-export const deleteCategories = async (categories) => {
+export const deleteDeliveryLocations = async (locations) => {
   const clientResult = {};
 
   await axios
-    .delete("/api/product-category", { data: { categories, frontendToken } })
+    .delete("/api/delivery-location", { data: { locations, frontendToken } })
     .then((res) => {
       if (res.status === 204) {
         clientResult.status = "success";
