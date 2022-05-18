@@ -51,8 +51,8 @@ const AddOrEditProductCategory = (props) => {
 
       // Validate every field
       for (let i = 0; i < inputFields.length; i++) {
-        const { validation, placeholder } = inputFields[i];
-        let error = formValidator(data[validation], validation, placeholder);
+        const { validation } = inputFields[i];
+        let error = formValidator(data[validation], validation);
 
         // if there are errors and goAheadAndSubmit is true then make it false
         if (error && goAheadAndSubmit) {

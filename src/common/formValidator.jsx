@@ -8,7 +8,7 @@ const formValidator = (value, validation, validateAll = true) => {
     validation !== "password" &&
     validation !== "confirmPassword" &&
     validation !== "discountPrice" &&
-    validation === "charge"
+    validation !== "charge"
   ) {
     error = `This field is required`;
   } else if (validateAll) {

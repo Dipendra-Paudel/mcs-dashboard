@@ -28,6 +28,7 @@ function createData(
   slug,
   productName,
   category,
+  brand,
   price,
   rating,
   numberOfRatings
@@ -37,6 +38,7 @@ function createData(
     slug,
     productName,
     category,
+    brand,
     price,
     rating,
     numberOfRatings,
@@ -83,6 +85,11 @@ const headCells = [
     id: "category",
     numeric: false,
     label: "Category",
+  },
+  {
+    id: "brand",
+    numeric: false,
+    label: "Brand",
   },
   {
     id: "price",
@@ -255,6 +262,7 @@ export default function ProductDataTable({
   products.map((p) => {
     if (
       p.productName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      p.brand.toLowerCase().includes(searchValue.toLowerCase()) ||
       p.category?.categoryName.toLowerCase().includes(searchValue.toLowerCase())
     ) {
       rows.push(
@@ -263,6 +271,7 @@ export default function ProductDataTable({
           p.slug,
           p.productName,
           p.category?.categoryName,
+          p.brand,
           p.price,
           p.rating,
           p.numberOfRatings
@@ -423,6 +432,7 @@ export default function ProductDataTable({
                           {row.productName}
                         </TableCell>
                         <TableCell align="right">{row.category}</TableCell>
+                        <TableCell align="right">{row.brand}</TableCell>
                         <TableCell align="right">{row.price}</TableCell>
                         <TableCell align="right">{row.rating}</TableCell>
                         <TableCell align="right">

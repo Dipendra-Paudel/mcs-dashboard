@@ -19,6 +19,11 @@ const inputFields = [
     placeholder: "Price",
   },
   {
+    type: "text",
+    validation: "brand",
+    placeholder: "Brand",
+  },
+  {
     type: "select",
     validation: "category",
     placeholder: "Select Product Category",
@@ -34,7 +39,7 @@ const AddOrEditProduct = (props) => {
   const [mounted, setMounted] = useState(true);
   let { type, handleClose, product, setMessage, categories } = props;
   product = type === "edit" ? product || {} : {};
-  const { productName, price, category, description, images, featured } =
+  const { productName, price, category, description, images, featured, brand } =
     product;
 
   const [submitting, setSubmitting] = useState(false);
@@ -44,10 +49,12 @@ const AddOrEditProduct = (props) => {
     category: category?._id || "",
     description: description || "",
     featured: featured || false,
+    brand: brand || "",
     errors: {
       productName: "",
       price: "",
       description: "",
+      brand: "",
     },
   });
   const [productImages, setProductImages] = useState(images || []);
@@ -94,8 +101,9 @@ const AddOrEditProduct = (props) => {
 
       // Validate every field
       for (let i = 0; i < inputFields.length; i++) {
-        const { validation, placeholder } = inputFields[i];
-        let error = formValidator(data[validation], validation, placeholder);
+        const { validation } = inputFields[i];
+        let error = formValidator(data[validation], validation);
+        console.log(error);
 
         // if there are errors and goAheadAndSubmit is true then make it false
         if (error && goAheadAndSubmit) {
@@ -217,7 +225,12 @@ const AddOrEditProduct = (props) => {
             >
               <div className="grid gap-4 md:grid-cols-2">
                 {inputFields.map((inputField, index) => (
-                  <div key={index} className={index > 1 ? "col-span-2" : ""}>
+                  <div
+                    key={index}
+                    className={
+                      index === 1 || index === 2 ? "col-span-1" : "col-span-2"
+                    }
+                  >
                     <InputField
                       {...inputField}
                       value={data[inputField.validation]}
