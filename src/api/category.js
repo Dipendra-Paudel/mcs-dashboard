@@ -17,7 +17,6 @@ export const addCategory = async (categoryName, image) => {
       status !== "success" && (clientResult = { status, error: message });
     })
     .catch((error) => {
-      console.log(error);
       const { status, message } = error;
       if (typeof status === "string") {
         clientResult.status = status;

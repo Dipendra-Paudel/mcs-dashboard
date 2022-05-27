@@ -47,8 +47,6 @@ const DeliveryLocation = (props) => {
     };
   }, []);
 
-  console.log(locations);
-
   return (
     <div>
       {loading && (

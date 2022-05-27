@@ -103,7 +103,6 @@ const AddOrEditProduct = (props) => {
       for (let i = 0; i < inputFields.length; i++) {
         const { validation } = inputFields[i];
         let error = formValidator(data[validation], validation);
-        console.log(error);
 
         // if there are errors and goAheadAndSubmit is true then make it false
         if (error && goAheadAndSubmit) {
