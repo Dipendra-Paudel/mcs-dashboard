@@ -16,11 +16,6 @@ const inputFields = [
   },
   {
     type: "text",
-    validation: "tole",
-    placeholder: "Tole",
-  },
-  {
-    type: "text",
     validation: "charge",
     placeholder: "Delivery Charge (Rs.)",
   },
@@ -30,17 +25,15 @@ const AddOrEditDeliveryLocation = (props) => {
   const [mounted, setMounted] = useState(true);
   let { type, handleClose, deliveryLocation, setMessage } = props;
   deliveryLocation = type === "add" ? {} : deliveryLocation;
-  const { ward, tole, charge } = deliveryLocation;
+  const { ward, charge } = deliveryLocation;
 
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState({
     ward: ward || "",
-    tole: tole || "",
     charge: charge || "",
 
     errors: {
       ward: "",
-      tole: "",
       charge: "",
     },
   });
@@ -81,13 +74,12 @@ const AddOrEditDeliveryLocation = (props) => {
       if (goAheadAndSubmit) {
         setSubmitting(true);
 
-        const { ward, tole, charge } = data;
+        const { ward, charge } = data;
 
         if (type === "edit") {
           const obj = {
             id: deliveryLocation?._id,
             ward,
-            tole,
             charge,
           };
 
@@ -109,7 +101,6 @@ const AddOrEditDeliveryLocation = (props) => {
         } else {
           const { message, error } = await addDeliveryLocation({
             ward,
-            tole,
             charge,
           });
           if (mounted) {

@@ -12,6 +12,19 @@ export const SimpleButton = ({ label, handleClick }) => {
   );
 };
 
+export const FetchingButton = ({ submitting, label, handleClick }) => {
+  return (
+    <button
+      className={`text-white flex items-center justify-center w-40 py-4 font-semibold ${
+        submitting ? "cursor-wait bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+      }`}
+      onClick={handleClick}
+    >
+      {submitting ? <Loader /> : label}
+    </button>
+  );
+};
+
 export const DeleteButton = ({ label, handleClick, deleting }) => {
   return (
     <button

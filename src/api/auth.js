@@ -5,7 +5,7 @@ export const verifyToken = async () => {
   const clientResult = {};
 
   await axios
-    .post("/api/user/verify-token", { frontendToken })
+    .post("/api/user/verify-token/admin", { frontendToken })
     .then((res) => {
       const { status, user } = res.data;
       clientResult.status = status;

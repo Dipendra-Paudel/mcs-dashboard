@@ -10,6 +10,8 @@ import Contact from "./components/pages/Contact";
 import Users from "./components/pages/Users";
 import ProductCategory from "./components/pages/ProductCategory";
 import DeliveryLocation from "./components/pages/DeliveryLocation";
+import Payments from "./components/payments/Payments";
+import IndividualPaymentPreview from "./components/payments/individual-payment/IndividualPaymentPreview";
 
 function App() {
   const [width, setWidth] = useState(window.innerWidth);
@@ -77,6 +79,11 @@ function App() {
           }`}
         >
           <Switch>
+            <Route
+              exact
+              path="/payments/:orderId"
+              component={IndividualPaymentPreview}
+            />
             <Route exact path="/product" component={Product} />
             <Route exact path="/product-category" component={ProductCategory} />
             <Route exact path="/service" component={Service} />
@@ -88,6 +95,7 @@ function App() {
             <Route exact path="/change-password" component={ChangePassword} />
             <Route exact path="/contact" component={Contact} />
             <Route exact path="/users" component={Users} />
+            <Route exact path="/payments" component={Payments} />
             <Route exact path="/" component={Dashboard} />
           </Switch>
         </div>

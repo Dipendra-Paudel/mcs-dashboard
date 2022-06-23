@@ -16,6 +16,16 @@ input:focus {
   color: #c41212;
 }
 
+.pending .MuiSvgIcon-root {
+  @apply text-yellow-600;
+}
+.complete .MuiSvgIcon-root {
+  @apply text-green-600;
+}
+.cancel .MuiSvgIcon-root {
+  @apply text-red-600;
+}
+
 /* for sidebar in laptops */
 @media only screen and (min-width: 1024px) {
   #sidebar {

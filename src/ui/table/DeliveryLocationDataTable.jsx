@@ -23,11 +23,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import ConfirmationDialog from "../dialog/ConfirmationDialog";
 import { deleteDeliveryLocations } from "../../api/deliveryLocation";
 
-function createData(id, ward, tole, charge) {
+function createData(id, ward, charge) {
   return {
     id,
     ward,
-    tole,
     charge,
   };
 }
@@ -66,12 +65,7 @@ const headCells = [
   {
     id: "ward",
     numeric: true,
-    label: "Ward No.",
-  },
-  {
-    id: "tole",
-    numeric: false,
-    label: "Tole",
+    label: "Ward",
   },
   {
     id: "charge",
@@ -233,11 +227,10 @@ export default function DeliveryLocationDataTable({
   const rows = [];
   deliveryLocations.map((p) => {
     if (
-      p.tole.toLowerCase().includes(searchValue.toLowerCase()) ||
       String(p.ward).includes(searchValue.toLowerCase()) ||
       String(p.charge).includes(searchValue.toLowerCase())
     ) {
-      rows.push(createData(p._id, p.ward, p.tole, p.charge));
+      rows.push(createData(p._id, p.ward, p.charge));
     }
     return null;
   });
@@ -390,9 +383,8 @@ export default function DeliveryLocationDataTable({
                           scope="row"
                           padding="none"
                         >
-                          <div className="pl-4">{row.ward}</div>
+                          <div className="pl-4">Bharatpur {row.ward}</div>
                         </TableCell>
-                        <TableCell align="right">{row.tole}</TableCell>
                         <TableCell align="right">Rs. {row.charge}</TableCell>
                         <TableCell align="right">
                           <EditIcon
